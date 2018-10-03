@@ -1,0 +1,16 @@
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Makefile
+cmake_install.cmake
+install_manifest.txt
+*.project
+*.cproject
+*.pydevproject
+.*settings
+*.pyc
+*.autotools
+*.txt
+*bin
+*trials.cpp
+*Cell3DDemonstration.cpp

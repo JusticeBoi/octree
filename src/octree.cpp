@@ -22,12 +22,12 @@ octree::octree(double xmin,double xmax, double ymin, double ymax,double zmin,dou
 }
 void octree::divideCell()
 {
-	std::cout <<"divide cell " <<std::endl;
+//	std::cout <<"divide cell " <<std::endl;
 	double center_x = (_x_max + _x_min) * 0.5;
 	double center_y = (_y_max + _y_min) * 0.5;
 	double center_z = (_z_max + _z_min) * 0.5;
 	int new_level = _level + 1;
-	std::cout <<"size of m_children : "<<m_children.size() <<std::endl;
+//	std::cout <<"size of m_children : "<<m_children.size() <<std::endl;
 
 	m_children[0] = std::make_shared<octree>(_x_min,center_x,_y_min,center_y,_z_min,center_z,new_level,std::make_shared<octree>(*this));
 
@@ -91,7 +91,7 @@ bool octree::amICut(int no_points)
 		cut = true;
 	}
 	else cut = false;
-	std::cout <<"cut: "<<cut<<std::endl;
+//	std::cout <<"cut: "<<cut<<std::endl;
 	return cut;
 
 

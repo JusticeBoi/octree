@@ -8,8 +8,8 @@ bool octree::isInside_sphere(double r,double c_x,double c_y,double c_z)
 octree::octree()
 {
 }
-octree::octree(double xmin,double xmax, double ymin, double ymax,double zmin,double zmax,int level ,std::weak_ptr<octree> parent ):_x_min(xmin),
-											_x_max(xmax),_y_min(ymin),_y_max(ymax),_z_min(zmin),_z_max(zmax),_level(level),m_parent(parent)
+octree::octree(double xmin,double xmax, double ymin, double ymax,double zmin,double zmax,int level ,std::weak_ptr<octree> parent,std::function<bool(std::vector<double>)> isInsideFunc  ):_x_min(xmin),
+											_x_max(xmax),_y_min(ymin),_y_max(ymax),_z_min(zmin),_z_max(zmax),_level(level),m_parent(parent),_isInsideFunc(isInsideFunc)
 {
 //		std::cout << "node generated " <<std::endl;
 		all_nodes.push_back(std::make_shared<octree>(*this));
@@ -29,21 +29,21 @@ void octree::divideCell()
 	int new_level = _level + 1;
 //	std::cout <<"size of m_children : "<<m_children.size() <<std::endl;
 
-	m_children[0] = std::make_shared<octree>(_x_min,center_x,_y_min,center_y,_z_min,center_z,new_level,std::make_shared<octree>(*this));
+	m_children[0] = std::make_shared<octree>(_x_min,center_x,_y_min,center_y,_z_min,center_z,new_level,std::make_shared<octree>(*this),_isInsideFunc);
 
-	m_children[1] = std::make_shared<octree>(center_x,_x_max,_y_min,center_y,_z_min,center_z,new_level,std::make_shared<octree>(*this));
+	m_children[1] = std::make_shared<octree>(center_x,_x_max,_y_min,center_y,_z_min,center_z,new_level,std::make_shared<octree>(*this),_isInsideFunc);
 
-	m_children[2] = std::make_shared<octree>(_x_min,center_x,center_y,_y_max,_z_min,center_z,new_level,std::make_shared<octree>(*this));
+	m_children[2] = std::make_shared<octree>(_x_min,center_x,center_y,_y_max,_z_min,center_z,new_level,std::make_shared<octree>(*this),_isInsideFunc);
 
-	m_children[3] = std::make_shared<octree>(center_x,_x_max,center_y,_y_max,_z_min,center_z,new_level,std::make_shared<octree>(*this));
+	m_children[3] = std::make_shared<octree>(center_x,_x_max,center_y,_y_max,_z_min,center_z,new_level,std::make_shared<octree>(*this),_isInsideFunc);
 
-	m_children[4] = std::make_shared<octree>(_x_min,center_x,_y_min,center_y,center_z,_z_max,new_level,std::make_shared<octree>(*this));
+	m_children[4] = std::make_shared<octree>(_x_min,center_x,_y_min,center_y,center_z,_z_max,new_level,std::make_shared<octree>(*this),_isInsideFunc);
 
-	m_children[5] = std::make_shared<octree>(center_x,_x_max,_y_min,center_y,center_z,_z_max,new_level,std::make_shared<octree>(*this));
+	m_children[5] = std::make_shared<octree>(center_x,_x_max,_y_min,center_y,center_z,_z_max,new_level,std::make_shared<octree>(*this),_isInsideFunc);
 
-	m_children[6] = std::make_shared<octree>(_x_min,center_x,center_y,_y_max,center_z,_z_max,new_level,std::make_shared<octree>(*this));
+	m_children[6] = std::make_shared<octree>(_x_min,center_x,center_y,_y_max,center_z,_z_max,new_level,std::make_shared<octree>(*this),_isInsideFunc);
 
-	m_children[7] = std::make_shared<octree>(center_x,_x_max,center_y,_y_max,center_z,_z_max,new_level,std::make_shared<octree>(*this));
+	m_children[7] = std::make_shared<octree>(center_x,_x_max,center_y,_y_max,center_z,_z_max,new_level,std::make_shared<octree>(*this),_isInsideFunc);
 
 	for(int j = 0; j < 8 ; ++j)
 	{
@@ -74,7 +74,7 @@ bool octree::amICut(int no_points)
 		{
 			for(int k = 0;k < no_points;k++)
 			{
-				if(isInside_sphere(0.5,currentx,currenty,currentz)) insideCounter++;
+				if(_isInsideFunc({currentx,currenty,currentz})) insideCounter++;
 				currentx+=dx;
 
 			}

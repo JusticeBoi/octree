@@ -40,9 +40,20 @@
 
 #include <string>
 #include <cstdlib>
+#include <functional>
+#include <cmath>
 
 #include "vtk_lib.hpp"
 
+enum bounds
+{
+	X_MIN,
+	X_MAX,
+	Y_MIN,
+	Y_MAX,
+	Z_MIN,
+	Z_MAX
+};
 
 class octree
 {
@@ -58,6 +69,8 @@ class octree
 	double _z_max;
 	int _level;
 
+	std::function<bool(std::vector<double>)> _isInsideFunc;
+
 	std::vector<octree> getAllNodes();
 	bool isInside_sphere(double r,double c_x,double c_y,double c_z);
 	void divideCell();
@@ -66,7 +79,8 @@ class octree
 
 public:
 	octree();
-	octree(double xmin,double xmax, double ymin, double ymax,double zmin,double zmax,int level,std::weak_ptr<octree> parent );
+	octree(double xmin,double xmax, double ymin, double ymax,double zmin,double zmax,int level,
+			std::weak_ptr<octree> parent,std::function<bool(std::vector<double>)> isInsideFunc );
 	void generateQuadTree(unsigned int max_level);
 	void showAll(std::vector<std::vector<double>> points);
 	std::vector<std::vector<double>> getAllPoints();

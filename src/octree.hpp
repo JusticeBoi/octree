@@ -47,6 +47,7 @@
 class octree
 {
 	static unsigned int total_number_of_nodes;
+	unsigned int max_level;
 	std::weak_ptr<octree> m_parent;
 	std::vector<std::shared_ptr<octree>> m_children;
 	double _x_min;
@@ -61,15 +62,20 @@ class octree
 	bool isInside_sphere(double r,double c_x,double c_y,double c_z);
 	void divideCell();
 	bool amICut(int no_points);
+	vtkSmartPointer<vtkUnstructuredGrid> assembleUGrid(std::vector<std::vector<double>> points);
+
 public:
 	octree();
 	octree(double xmin,double xmax, double ymin, double ymax,double zmin,double zmax,int level,std::weak_ptr<octree> parent );
-	void generateQuadTree(int max_level);
-	void showVtk(std::vector<std::vector<double>> allpoints);
-	std::vector<std::vector<double>> getAllPoints(int max_level);
+	void generateQuadTree(unsigned int max_level);
+	void showAll(std::vector<std::vector<double>> points);
+	std::vector<std::vector<double>> getAllPoints();
 	static std::vector<std::shared_ptr<octree>> all_nodes;
-	std::vector<std::vector<double>> getAllPointsDeepestLevel(int max_level);
+	std::vector<std::vector<double>> getAllPointsDeepestLevel();
 	double getLevelOfNode();
+	void WriteUnstrucredGrid(std::string output_name );
+
+
 
 
 

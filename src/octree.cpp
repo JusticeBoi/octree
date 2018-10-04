@@ -96,8 +96,9 @@ bool octree::amICut(int no_points)
 
 
 }
-void octree::generateQuadTree(int max_level)
+void octree::generateQuadTree(unsigned int _max_level)
 {
+	max_level = _max_level;
 	if ( amICut(5) && _level < max_level)
 	{
 		this->divideCell();
@@ -110,7 +111,7 @@ void octree::generateQuadTree(int max_level)
 unsigned int octree::total_number_of_nodes = 0;
 std::vector<std::shared_ptr<octree>> octree::all_nodes = std::vector<std::shared_ptr<octree>>();
 
-std::vector<std::vector<double>> octree::getAllPoints(int max_level)
+std::vector<std::vector<double>> octree::getAllPoints()
 {
 	std::vector<std::vector<double>> all_points;
 
@@ -153,7 +154,7 @@ std::vector<std::vector<double>> octree::getAllPoints(int max_level)
 	return all_points;
 }
 
-std::vector<std::vector<double>> octree::getAllPointsDeepestLevel(int max_level)
+std::vector<std::vector<double>> octree::getAllPointsDeepestLevel()
 {
 	std::vector<std::vector<double>> deepest_level_points;
 
@@ -195,59 +196,93 @@ std::vector<std::vector<double>> octree::getAllPointsDeepestLevel(int max_level)
 
 }
 
-void octree::showVtk(std::vector<std::vector<double>> allpoints)
+
+vtkSmartPointer<vtkUnstructuredGrid> octree::assembleUGrid(std::vector<std::vector<double>> input_points)
+		{
+	vtkSmartPointer<vtkUnstructuredGrid> unstructured_grid =
+			vtkSmartPointer<vtkUnstructuredGrid>::New();
+
+
+	vtkSmartPointer<vtkPoints> points =
+			vtkSmartPointer<vtkPoints>::New();
+
+	vtkSmartPointer<vtkHexahedron> hex =
+			vtkSmartPointer<vtkHexahedron>::New();
+
+
+
+	std::vector<double> tmp_point;
+
+	for(auto point_vec : input_points)
+	{
+		for( auto point_coord_scalar : point_vec)
+		{
+			tmp_point.push_back(point_coord_scalar);
+		}
+		points->InsertNextPoint(tmp_point[0],tmp_point[1],tmp_point[2]);
+		tmp_point.clear();
+	}
+	unstructured_grid->SetPoints(points);
+	//	  std::cout <<"points->GetNumberOfPoints() : "<< points->GetNumberOfPoints()<<"\t"<<(points->GetNumberOfPoints()) / 8 <<std::endl;
+	//	  for(int a = 0;a<8 ;++a)
+	//	  {
+	//	  std::cout << points->GetPoint(a)[0]<<"\t"<<points->GetPoint(a)[1]<<"\t"<<points->GetPoint(a)[2]<<std::endl;
+	//	  }
+	for ( int j =0 ; j < int(points->GetNumberOfPoints() / 8)  ;++j)
+	{
+		hex->Initialize();
+		hex->GetPointIds()->SetNumberOfIds(8);
+		for( int i = 0; i < 8 ; ++i)
+		{
+			hex->GetPointIds()->SetId(i,8*j +i);
+		}
+		unstructured_grid->InsertNextCell(hex->GetCellType(),hex->GetPointIds());
+	}
+	return unstructured_grid;
+
+		}
+void octree::showAll(std::vector<std::vector<double>> points)
 {
 
-	  vtkSmartPointer<vtkUnstructuredGrid> unstructured_grid =
-			  vtkSmartPointer<vtkUnstructuredGrid>::New();
-
-
-	  vtkSmartPointer<vtkPoints> points =
-	    vtkSmartPointer<vtkPoints>::New();
-
-		vtkSmartPointer<vtkHexahedron> hex =
-				vtkSmartPointer<vtkHexahedron>::New();
-
-
-//		 std::vector<double> tmp_point;
+	  vtkSmartPointer<vtkUnstructuredGrid> unstructured_grid = assembleUGrid(points);
 //
-//			  for(auto point_vec : points_for_hex)
-//			  	{
-//			  		for( auto point_coord_scalar : point_vec)
-//			  		{
-//			  			tmp_point.push_back(point_coord_scalar);
-//			  		}
-//			  		points->InsertNextPoint(tmp_point[0],tmp_point[1],tmp_point[2]);
-//			  		tmp_point.clear();
-//			  	}
-	  std::vector<double> tmp_point;
-
-	  for(auto point_vec : allpoints)
-	  	{
-	  		for( auto point_coord_scalar : point_vec)
-	  		{
-	  			tmp_point.push_back(point_coord_scalar);
-	  		}
-	  		points->InsertNextPoint(tmp_point[0],tmp_point[1],tmp_point[2]);
-	  		tmp_point.clear();
-	  	}
-	  unstructured_grid->SetPoints(points);
-//	  std::cout <<"points->GetNumberOfPoints() : "<< points->GetNumberOfPoints()<<"\t"<<(points->GetNumberOfPoints()) / 8 <<std::endl;
-//	  for(int a = 0;a<8 ;++a)
-//	  {
-//	  std::cout << points->GetPoint(a)[0]<<"\t"<<points->GetPoint(a)[1]<<"\t"<<points->GetPoint(a)[2]<<std::endl;
-//	  }
-	  for ( int j =0 ; j < int(points->GetNumberOfPoints() / 8)  ;++j)
-	  	{
-	  		hex->Initialize();
-	  		hex->GetPointIds()->SetNumberOfIds(8);
-	  	for( int i = 0; i < 8 ; ++i)
-	  	{
-	  		hex->GetPointIds()->SetId(i,8*j +i);
-	  	}
-	  	unstructured_grid->InsertNextCell(hex->GetCellType(),hex->GetPointIds());
-	  	}
-
+//
+//	  vtkSmartPointer<vtkPoints> points =
+//	    vtkSmartPointer<vtkPoints>::New();
+//
+//		vtkSmartPointer<vtkHexahedron> hex =
+//				vtkSmartPointer<vtkHexahedron>::New();
+//
+//
+//
+//	  std::vector<double> tmp_point;
+//
+//	  for(auto point_vec : allpoints)
+//	  	{
+//	  		for( auto point_coord_scalar : point_vec)
+//	  		{
+//	  			tmp_point.push_back(point_coord_scalar);
+//	  		}
+//	  		points->InsertNextPoint(tmp_point[0],tmp_point[1],tmp_point[2]);
+//	  		tmp_point.clear();
+//	  	}
+//	  unstructured_grid->SetPoints(points);
+////	  std::cout <<"points->GetNumberOfPoints() : "<< points->GetNumberOfPoints()<<"\t"<<(points->GetNumberOfPoints()) / 8 <<std::endl;
+////	  for(int a = 0;a<8 ;++a)
+////	  {
+////	  std::cout << points->GetPoint(a)[0]<<"\t"<<points->GetPoint(a)[1]<<"\t"<<points->GetPoint(a)[2]<<std::endl;
+////	  }
+//	  for ( int j =0 ; j < int(points->GetNumberOfPoints() / 8)  ;++j)
+//	  	{
+//	  		hex->Initialize();
+//	  		hex->GetPointIds()->SetNumberOfIds(8);
+//	  	for( int i = 0; i < 8 ; ++i)
+//	  	{
+//	  		hex->GetPointIds()->SetId(i,8*j +i);
+//	  	}
+//	  	unstructured_grid->InsertNextCell(hex->GetCellType(),hex->GetPointIds());
+//	  	}
+//
 
 
 
@@ -281,6 +316,17 @@ void octree::showVtk(std::vector<std::vector<double>> allpoints)
 		renderer->SetBackground(.3, .6, .3); // Background color green
 		renderWindow->Render();
 		 renderWindowInteractor->Start();
+}
 
+void octree::WriteUnstrucredGrid(std::string output_name )
+{
+	vtkSmartPointer<vtkXMLUnstructuredGridWriter> writer =
+		        vtkSmartPointer<vtkXMLUnstructuredGridWriter>::New();
+	vtkSmartPointer<vtkUnstructuredGrid> unstructured_grid = assembleUGrid(getAllPoints());
+//		    std::string folder_name = filename.substr(0,filename.find_last_of('/'));
+//		    std::string outname = "sphere_.vtu";
 
+		    writer->SetFileName(output_name.c_str());
+		    writer->SetInputData(unstructured_grid);
+		    writer->Write(); // writing the selected_out.vtu in the same folder.
 }

@@ -88,6 +88,7 @@ public:
 	std::vector<std::vector<double>> getAllPointsDeepestLevel();
 	double getLevelOfNode();
 	void WriteUnstrucredGrid(std::string output_name );
+	void WriteUnstrucredGridDeepestLevel(std::string output_name );
 
 
 

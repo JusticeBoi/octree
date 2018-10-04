@@ -330,3 +330,17 @@ void octree::WriteUnstrucredGrid(std::string output_name )
 		    writer->SetInputData(unstructured_grid);
 		    writer->Write(); // writing the selected_out.vtu in the same folder.
 }
+
+void octree::WriteUnstrucredGridDeepestLevel(std::string output_name )
+{
+	vtkSmartPointer<vtkXMLUnstructuredGridWriter> writer =
+		        vtkSmartPointer<vtkXMLUnstructuredGridWriter>::New();
+	vtkSmartPointer<vtkUnstructuredGrid> unstructured_grid = assembleUGrid(getAllPointsDeepestLevel());
+//		    std::string folder_name = filename.substr(0,filename.find_last_of('/'));
+//		    std::string outname = "sphere_.vtu";
+
+		    writer->SetFileName(output_name.c_str());
+		    writer->SetInputData(unstructured_grid);
+		    writer->Write(); // writing the selected_out.vtu in the same folder.
+}
+

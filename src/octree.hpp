@@ -43,7 +43,6 @@
 #include <functional>
 #include <cmath>
 
-#include "vtk_lib.hpp"
 
 enum bounds
 {
@@ -67,28 +66,28 @@ class octree
 	double _y_max;
 	double _z_min;
 	double _z_max;
-	int _level;
+	unsigned int _level;
 
-	std::function<bool(std::vector<double>)> _isInsideFunc;
+	std::function<bool(const std::vector<double>&)> _isInsideFunc;
 
 	std::vector<octree> getAllNodes();
 	bool isInside_sphere(double r,double c_x,double c_y,double c_z);
 	void divideCell();
-	bool amICut(int no_points);
-	vtkSmartPointer<vtkUnstructuredGrid> assembleUGrid(std::vector<std::vector<double>> points);
+	bool amICut(const unsigned int no_points);
+	vtkSmartPointer<vtkUnstructuredGrid> assembleUGrid(const std::vector<std::vector<double>>& points);
 
 public:
 	octree();
-	octree(double xmin,double xmax, double ymin, double ymax,double zmin,double zmax,int level,
-			std::weak_ptr<octree> parent,std::function<bool(std::vector<double>)> isInsideFunc );
-	void generateQuadTree(unsigned int max_level);
-	void showAll(std::vector<std::vector<double>> points);
+	octree(double xmin,double xmax, double ymin, double ymax,double zmin,double zmax,unsigned int level,
+			std::weak_ptr<octree> parent,std::function<bool(const std::vector<double>)> isInsideFunc );
+	void generateQuadTree(const unsigned int max_level);
+	void showAll(const std::vector<std::vector<double>>& points);
 	std::vector<std::vector<double>> getAllPoints();
 	static std::vector<std::shared_ptr<octree>> all_nodes;
 	std::vector<std::vector<double>> getAllPointsDeepestLevel();
-	double getLevelOfNode();
-	void WriteUnstrucredGrid(std::string output_name );
-	void WriteUnstrucredGridDeepestLevel(std::string output_name );
+	unsigned int getLevelOfNode();
+	void WriteUnstrucredGrid(const std::string output_name );
+	void WriteUnstrucredGridDeepestLevel(const std::string output_name );
 
 
 

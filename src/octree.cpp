@@ -8,15 +8,16 @@ bool octree::isInside_sphere(double r,double c_x,double c_y,double c_z)
 octree::octree()
 {
 }
-octree::octree(double xmin,double xmax, double ymin, double ymax,double zmin,double zmax,int level ,std::weak_ptr<octree> parent,std::function<bool(std::vector<double>)> isInsideFunc  ):_x_min(xmin),
+octree::octree(double xmin,double xmax, double ymin, double ymax,double zmin,double zmax,unsigned int level ,std::weak_ptr<octree> parent,std::function<bool(std::vector<double>)> isInsideFunc  ):_x_min(xmin),
 											_x_max(xmax),_y_min(ymin),_y_max(ymax),_z_min(zmin),_z_max(zmax),_level(level),m_parent(parent),_isInsideFunc(isInsideFunc)
 {
 //		std::cout << "node generated " <<std::endl;
 		all_nodes.push_back(std::make_shared<octree>(*this));
-		for(int i = 0; i < 8 ; ++i)
-		{
-			m_children.emplace_back(nullptr);
-		}
+//		for(int i = 0; i < 8 ; ++i)
+//		{
+//			m_children.emplace_back(nullptr);
+//		}
+		m_children = std::vector<std::shared_ptr<octree>>(8,nullptr);
 		total_number_of_nodes++;
 
 }
@@ -45,34 +46,29 @@ void octree::divideCell()
 
 	m_children[7] = std::make_shared<octree>(center_x,_x_max,center_y,_y_max,center_z,_z_max,new_level,std::make_shared<octree>(*this),_isInsideFunc);
 
-	for(int j = 0; j < 8 ; ++j)
-	{
-		all_nodes.push_back(m_children[j]);
-	}
-
 
 }
 
-double octree::getLevelOfNode()
+unsigned int octree::getLevelOfNode()
 {
 	return this->_level;
 }
-bool octree::amICut(int no_points)
+bool octree::amICut(const unsigned int no_points)
 {
 	bool cut = false;
-	int insideCounter = 0 ;
+	unsigned int insideCounter = 0 ;
 	double dx = (_x_max - _x_min)/double(no_points-1);
 	double dy = (_y_max - _y_min)/double(no_points-1);
 	double dz = (_z_max - _z_min)/double(no_points-1);
 //	std::cout <<"dx: "<<dx <<" dy: "<<dy <<" dz: "<<dz<<std::endl;
 	double currentz = _z_min;
 	double currenty = _y_min;
-	for (int i = 0; i < no_points;++i)
+	for (unsigned int i = 0; i < no_points;++i)
 	{
 		double currentx = _x_min;
-		for (int j = 0; j < no_points;j++)
+		for (unsigned int j = 0; j < no_points;j++)
 		{
-			for(int k = 0;k < no_points;k++)
+			for(unsigned int k = 0;k < no_points;k++)
 			{
 				if(_isInsideFunc({currentx,currenty,currentz})) insideCounter++;
 				currentx+=dx;
@@ -96,7 +92,7 @@ bool octree::amICut(int no_points)
 
 
 }
-void octree::generateQuadTree(unsigned int _max_level)
+void octree::generateQuadTree(const unsigned int _max_level)
 {
 	max_level = _max_level;
 	if ( amICut(5) && _level < max_level)
@@ -197,7 +193,7 @@ std::vector<std::vector<double>> octree::getAllPointsDeepestLevel()
 }
 
 
-vtkSmartPointer<vtkUnstructuredGrid> octree::assembleUGrid(std::vector<std::vector<double>> input_points)
+vtkSmartPointer<vtkUnstructuredGrid> octree::assembleUGrid(const std::vector<std::vector<double>>& input_points)
 		{
 	vtkSmartPointer<vtkUnstructuredGrid> unstructured_grid =
 			vtkSmartPointer<vtkUnstructuredGrid>::New();
@@ -241,9 +237,9 @@ vtkSmartPointer<vtkUnstructuredGrid> octree::assembleUGrid(std::vector<std::vect
 	return unstructured_grid;
 
 		}
-void octree::showAll(std::vector<std::vector<double>> points)
+void octree::showAll(const std::vector<std::vector<double>>& points)
 {
-
+	auto start = std::chrono::steady_clock::now();
 	  vtkSmartPointer<vtkUnstructuredGrid> unstructured_grid = assembleUGrid(points);
 //
 //
@@ -315,23 +311,24 @@ void octree::showAll(std::vector<std::vector<double>> points)
 
 		renderer->SetBackground(.3, .6, .3); // Background color green
 		renderWindow->Render();
-		 renderWindowInteractor->Start();
+		auto end = std::chrono::steady_clock::now();
+		auto diff = end - start;
+		std::cout <<"duration of show all:  "<< std::chrono::duration <double, std::milli> (diff).count() << " ms" << std::endl;
+		renderWindowInteractor->Start();
 }
 
-void octree::WriteUnstrucredGrid(std::string output_name )
+void octree::WriteUnstrucredGrid(const std::string output_name )
 {
 	vtkSmartPointer<vtkXMLUnstructuredGridWriter> writer =
 		        vtkSmartPointer<vtkXMLUnstructuredGridWriter>::New();
 	vtkSmartPointer<vtkUnstructuredGrid> unstructured_grid = assembleUGrid(getAllPoints());
-//		    std::string folder_name = filename.substr(0,filename.find_last_of('/'));
-//		    std::string outname = "sphere_.vtu";
 
 		    writer->SetFileName(output_name.c_str());
 		    writer->SetInputData(unstructured_grid);
 		    writer->Write(); // writing the selected_out.vtu in the same folder.
 }
 
-void octree::WriteUnstrucredGridDeepestLevel(std::string output_name )
+void octree::WriteUnstrucredGridDeepestLevel(const std::string output_name )
 {
 	vtkSmartPointer<vtkXMLUnstructuredGridWriter> writer =
 		        vtkSmartPointer<vtkXMLUnstructuredGridWriter>::New();

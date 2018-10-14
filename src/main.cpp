@@ -31,10 +31,12 @@ int main(int argc, char *argv[])
 
 	auto isInsideHeart_1 = [](const std::vector<double>& center_vec)
 								{
-			return (pow(pow(center_vec[0],2) + pow(center_vec[1],2) -1 ,3) -
-					pow(center_vec[0],2)*pow(center_vec[1],3)  < 0.0) &&(center_vec[2] == 0 ) ? 1 : 0;
+			return ((pow(pow(center_vec[0],2) + pow(center_vec[1],2) -1 ,3) -
+					pow(center_vec[0],2)*pow(center_vec[1],3)  < 0.0) || (center_vec[2] == 0))  ? 1 : 0;
 								};
-	std::shared_ptr<octree> o = std::make_shared<octree>(-1.5, 1.5 ,-1.5 ,1.5 , -1.5 , 1.5, 0 ,std::weak_ptr<octree>(),isInsideHeart_1);
+	//&& (center_vec[2] == 0)
+
+	std::shared_ptr<node> o = std::make_shared<node>(-1.5, 1.5 ,-1.5 ,1.5 , -1.5 , 1.5, 0 ,std::weak_ptr<node>(),isInsideHeart_1);
 
 
 	auto start = std::chrono::steady_clock::now();

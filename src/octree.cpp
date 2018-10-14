@@ -1,27 +1,26 @@
 #include "octree.hpp"
 
-bool octree::isInside_sphere(double r,double c_x,double c_y,double c_z)
+bool node::isInside_sphere(double r,double c_x,double c_y,double c_z)
 {
 //	std::cout <<"c_x*c_x + c_y*c_y + c_z*c_z : " << c_x*c_x + c_y*c_y + c_z*c_z << " r*r : "<< r*r <<std::endl;
 	return ((c_x-0.5)*(c_x-0.5) + (c_y-0.5)*(c_y-0.5) + (c_z-0.5)*(c_z-0.5) <= r*r ) ? 1: 0;
 }
-octree::octree()
+node::node()
 {
 }
-octree::octree(double xmin,double xmax, double ymin, double ymax,double zmin,double zmax,unsigned int level ,std::weak_ptr<octree> parent,std::function<bool(std::vector<double>)> isInsideFunc  ):_x_min(xmin),
+node::node(double xmin,double xmax, double ymin, double ymax,double zmin,double zmax,unsigned int level ,std::weak_ptr<node> parent,std::function<bool(std::vector<double>)> isInsideFunc  ):_x_min(xmin),
 											_x_max(xmax),_y_min(ymin),_y_max(ymax),_z_min(zmin),_z_max(zmax),_level(level),m_parent(parent),_isInsideFunc(isInsideFunc)
 {
 //		std::cout << "node generated " <<std::endl;
-		all_nodes.push_back(std::make_shared<octree>(*this));
+		all_nodes.push_back(std::make_shared<node>(*this));
 //		for(int i = 0; i < 8 ; ++i)
 //		{
 //			m_children.emplace_back(nullptr);
 //		}
-		m_children = std::vector<std::shared_ptr<octree>>(8,nullptr);
+		m_children = std::vector<std::shared_ptr<node>>(8,nullptr);
 		total_number_of_nodes++;
-
 }
-void octree::divideCell()
+void node::divideCell()
 {
 //	std::cout <<"divide cell " <<std::endl;
 	double center_x = (_x_max + _x_min) * 0.5;
@@ -30,30 +29,30 @@ void octree::divideCell()
 	int new_level = _level + 1;
 //	std::cout <<"size of m_children : "<<m_children.size() <<std::endl;
 
-	m_children[0] = std::make_shared<octree>(_x_min,center_x,_y_min,center_y,_z_min,center_z,new_level,std::make_shared<octree>(*this),_isInsideFunc);
+	m_children[0] = std::make_shared<node>(_x_min,center_x,_y_min,center_y,_z_min,center_z,new_level,std::make_shared<node>(*this),_isInsideFunc);
 
-	m_children[1] = std::make_shared<octree>(center_x,_x_max,_y_min,center_y,_z_min,center_z,new_level,std::make_shared<octree>(*this),_isInsideFunc);
+	m_children[1] = std::make_shared<node>(center_x,_x_max,_y_min,center_y,_z_min,center_z,new_level,std::make_shared<node>(*this),_isInsideFunc);
 
-	m_children[2] = std::make_shared<octree>(_x_min,center_x,center_y,_y_max,_z_min,center_z,new_level,std::make_shared<octree>(*this),_isInsideFunc);
+	m_children[2] = std::make_shared<node>(_x_min,center_x,center_y,_y_max,_z_min,center_z,new_level,std::make_shared<node>(*this),_isInsideFunc);
 
-	m_children[3] = std::make_shared<octree>(center_x,_x_max,center_y,_y_max,_z_min,center_z,new_level,std::make_shared<octree>(*this),_isInsideFunc);
+	m_children[3] = std::make_shared<node>(center_x,_x_max,center_y,_y_max,_z_min,center_z,new_level,std::make_shared<node>(*this),_isInsideFunc);
 
-	m_children[4] = std::make_shared<octree>(_x_min,center_x,_y_min,center_y,center_z,_z_max,new_level,std::make_shared<octree>(*this),_isInsideFunc);
+	m_children[4] = std::make_shared<node>(_x_min,center_x,_y_min,center_y,center_z,_z_max,new_level,std::make_shared<node>(*this),_isInsideFunc);
 
-	m_children[5] = std::make_shared<octree>(center_x,_x_max,_y_min,center_y,center_z,_z_max,new_level,std::make_shared<octree>(*this),_isInsideFunc);
+	m_children[5] = std::make_shared<node>(center_x,_x_max,_y_min,center_y,center_z,_z_max,new_level,std::make_shared<node>(*this),_isInsideFunc);
 
-	m_children[6] = std::make_shared<octree>(_x_min,center_x,center_y,_y_max,center_z,_z_max,new_level,std::make_shared<octree>(*this),_isInsideFunc);
+	m_children[6] = std::make_shared<node>(_x_min,center_x,center_y,_y_max,center_z,_z_max,new_level,std::make_shared<node>(*this),_isInsideFunc);
 
-	m_children[7] = std::make_shared<octree>(center_x,_x_max,center_y,_y_max,center_z,_z_max,new_level,std::make_shared<octree>(*this),_isInsideFunc);
+	m_children[7] = std::make_shared<node>(center_x,_x_max,center_y,_y_max,center_z,_z_max,new_level,std::make_shared<node>(*this),_isInsideFunc);
 
 
 }
 
-unsigned int octree::getLevelOfNode()
+unsigned int node::getLevelOfNode()
 {
 	return this->_level;
 }
-bool octree::amICut(const unsigned int no_points)
+bool node::amICut(const unsigned int no_points)
 {
 	bool cut = false;
 	unsigned int insideCounter = 0 ;
@@ -92,7 +91,7 @@ bool octree::amICut(const unsigned int no_points)
 
 
 }
-void octree::generateQuadTree(const unsigned int _max_level)
+void node::generateQuadTree(const unsigned int _max_level)
 {
 	max_level = _max_level;
 	if ( amICut(5) && _level < max_level)
@@ -104,14 +103,14 @@ void octree::generateQuadTree(const unsigned int _max_level)
 		}
 	}
 }
-unsigned int octree::total_number_of_nodes = 0;
-std::vector<std::shared_ptr<octree>> octree::all_nodes = std::vector<std::shared_ptr<octree>>();
+unsigned int node::total_number_of_nodes = 0;
+std::vector<std::shared_ptr<node>> node::all_nodes = std::vector<std::shared_ptr<node>>();
 
-std::vector<std::vector<double>> octree::getAllPoints()
+std::vector<std::vector<double>> node::getAllPoints()
 {
 	std::vector<std::vector<double>> all_points;
 
-	std::shared_ptr<octree> nodes = std::make_shared<octree>(*this);
+	std::shared_ptr<node> nodes = std::make_shared<node>(*this);
 
 	for(auto node : this->all_nodes)
 	{
@@ -150,11 +149,11 @@ std::vector<std::vector<double>> octree::getAllPoints()
 	return all_points;
 }
 
-std::vector<std::vector<double>> octree::getAllPointsDeepestLevel()
+std::vector<std::vector<double>> node::getAllPointsDeepestLevel()
 {
 	std::vector<std::vector<double>> deepest_level_points;
 
-		std::shared_ptr<octree> nodes = std::make_shared<octree>(*this);
+		std::shared_ptr<node> nodes = std::make_shared<node>(*this);
 
 		for(auto node : this->all_nodes)
 		{
@@ -193,7 +192,7 @@ std::vector<std::vector<double>> octree::getAllPointsDeepestLevel()
 }
 
 
-vtkSmartPointer<vtkUnstructuredGrid> octree::assembleUGrid(const std::vector<std::vector<double>>& input_points)
+vtkSmartPointer<vtkUnstructuredGrid> node::assembleUGrid(const std::vector<std::vector<double>>& input_points)
 		{
 	vtkSmartPointer<vtkUnstructuredGrid> unstructured_grid =
 			vtkSmartPointer<vtkUnstructuredGrid>::New();
@@ -237,7 +236,7 @@ vtkSmartPointer<vtkUnstructuredGrid> octree::assembleUGrid(const std::vector<std
 	return unstructured_grid;
 
 		}
-void octree::showAll(const std::vector<std::vector<double>>& points)
+void node::showAll(const std::vector<std::vector<double>>& points)
 {
 	auto start = std::chrono::steady_clock::now();
 	  vtkSmartPointer<vtkUnstructuredGrid> unstructured_grid = assembleUGrid(points);
@@ -317,7 +316,7 @@ void octree::showAll(const std::vector<std::vector<double>>& points)
 		renderWindowInteractor->Start();
 }
 
-void octree::WriteUnstrucredGrid(const std::string output_name )
+void node::WriteUnstrucredGrid(const std::string output_name )
 {
 	vtkSmartPointer<vtkXMLUnstructuredGridWriter> writer =
 		        vtkSmartPointer<vtkXMLUnstructuredGridWriter>::New();
@@ -328,7 +327,7 @@ void octree::WriteUnstrucredGrid(const std::string output_name )
 		    writer->Write(); // writing the selected_out.vtu in the same folder.
 }
 
-void octree::WriteUnstrucredGridDeepestLevel(const std::string output_name )
+void node::WriteUnstrucredGridDeepestLevel(const std::string output_name )
 {
 	vtkSmartPointer<vtkXMLUnstructuredGridWriter> writer =
 		        vtkSmartPointer<vtkXMLUnstructuredGridWriter>::New();

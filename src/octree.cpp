@@ -44,8 +44,6 @@ void node::divideCell()
 	m_children[6] = std::make_shared<node>(_x_min,center_x,center_y,_y_max,center_z,_z_max,new_level,std::make_shared<node>(*this),_isInsideFunc);
 
 	m_children[7] = std::make_shared<node>(center_x,_x_max,center_y,_y_max,center_z,_z_max,new_level,std::make_shared<node>(*this),_isInsideFunc);
-
-
 }
 
 unsigned int node::getLevelOfNode()
@@ -85,7 +83,6 @@ bool node::amICut(const unsigned int no_points)
 	{
 		cut = true;
 	}
-	else cut = false;
 //	std::cout <<"cut: "<<cut<<std::endl;
 	return cut;
 
@@ -109,32 +106,22 @@ std::vector<std::shared_ptr<node>> node::all_nodes = std::vector<std::shared_ptr
 std::vector<std::vector<double>> node::getAllPoints()
 {
 	std::vector<std::vector<double>> all_points;
-
-	std::shared_ptr<node> nodes = std::make_shared<node>(*this);
-
 	for(auto node : this->all_nodes)
 	{
 		all_points.emplace_back(std::vector<double>{node->_x_min,node->_y_min,node->_z_min});
-
 		all_points.emplace_back(std::vector<double>{node->_x_max,node->_y_min,node->_z_min});
 
 
 		all_points.emplace_back(std::vector<double>{ node->_x_max , node->_y_max , node->_z_min });
-
 		all_points.emplace_back(std::vector<double>{ node->_x_min, node->_y_max, node->_z_min});
 
 
-
 		all_points.emplace_back(std::vector<double>{ node->_x_min, node->_y_min , node->_z_max });
-
 		all_points.emplace_back(std::vector<double>{ node->_x_max , node->_y_min , node->_z_max });
 
 
 		all_points.emplace_back(std::vector<double>{ node->_x_max , node->_y_max , node->_z_max });
 		all_points.emplace_back(std::vector<double>{ node->_x_min , node->_y_max , node->_z_max });
-
-
-
 	}
 
 //	for(auto point_vec : all_points)
@@ -153,26 +140,18 @@ std::vector<std::vector<double>> node::getAllPointsDeepestLevel()
 {
 	std::vector<std::vector<double>> deepest_level_points;
 
-		std::shared_ptr<node> nodes = std::make_shared<node>(*this);
-
 		for(auto node : this->all_nodes)
 		{
 			if(node->getLevelOfNode() == max_level)
 			{
 				deepest_level_points.emplace_back(std::vector<double>{node->_x_min,node->_y_min,node->_z_min});
-
 				deepest_level_points.emplace_back(std::vector<double>{node->_x_max,node->_y_min,node->_z_min});
-
 
 				deepest_level_points.emplace_back(std::vector<double>{ node->_x_max , node->_y_max , node->_z_min });
 				deepest_level_points.emplace_back(std::vector<double>{ node->_x_min, node->_y_max, node->_z_min});
 
-
-
 				deepest_level_points.emplace_back(std::vector<double>{ node->_x_min, node->_y_min , node->_z_max });
-
 				deepest_level_points.emplace_back(std::vector<double>{ node->_x_max , node->_y_min , node->_z_max });
-
 
 				deepest_level_points.emplace_back(std::vector<double>{ node->_x_max , node->_y_max , node->_z_max });
 				deepest_level_points.emplace_back(std::vector<double>{ node->_x_min , node->_y_max , node->_z_max });
@@ -334,9 +313,7 @@ void node::WriteUnstrucredGridDeepestLevel(const std::string output_name )
 	vtkSmartPointer<vtkUnstructuredGrid> unstructured_grid = assembleUGrid(getAllPointsDeepestLevel());
 //		    std::string folder_name = filename.substr(0,filename.find_last_of('/'));
 //		    std::string outname = "sphere_.vtu";
-
 		    writer->SetFileName(output_name.c_str());
 		    writer->SetInputData(unstructured_grid);
 		    writer->Write(); // writing the selected_out.vtu in the same folder.
 }
-

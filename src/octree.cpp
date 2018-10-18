@@ -105,8 +105,8 @@ std::vector<std::shared_ptr<node>> node::all_nodes = std::vector<std::shared_ptr
 std::vector<std::vector<double>> node::getAllPoints() const
 {
 	std::vector<std::vector<double>> all_points;
-	for(auto node : node::all_nodes)
-	{
+    std::for_each(node::all_nodes.begin(), node::all_nodes.end(), [&all_points](const std::shared_ptr<node>& node)
+            {
 		all_points.emplace_back(std::vector<double>{node->_x_min,node->_y_min,node->_z_min});
 		all_points.emplace_back(std::vector<double>{node->_x_max,node->_y_min,node->_z_min});
 
@@ -121,7 +121,7 @@ std::vector<std::vector<double>> node::getAllPoints() const
 
 		all_points.emplace_back(std::vector<double>{ node->_x_max , node->_y_max , node->_z_max });
 		all_points.emplace_back(std::vector<double>{ node->_x_min , node->_y_max , node->_z_max });
-	}
+            });
 
 //	for(auto point_vec : all_points)
 //	{
@@ -138,23 +138,25 @@ std::vector<std::vector<double>> node::getAllPoints() const
 std::vector<std::vector<double>> node::getAllPointsDeepestLevel() const
 {
 	std::vector<std::vector<double>> deepest_level_points;
-		for(auto node : node::all_nodes)
-		{
+    std::for_each(node::all_nodes.begin(), node::all_nodes.end(), [this,&deepest_level_points](const std::shared_ptr<node>& node)
+            {
 			if(node->getLevelOfNode() == max_level)
-			{
-				deepest_level_points.emplace_back(std::vector<double>{node->_x_min,node->_y_min,node->_z_min});
-				deepest_level_points.emplace_back(std::vector<double>{node->_x_max,node->_y_min,node->_z_min});
+            {
+		deepest_level_points.emplace_back(std::vector<double>{node->_x_min,node->_y_min,node->_z_min});
+		deepest_level_points.emplace_back(std::vector<double>{node->_x_max,node->_y_min,node->_z_min});
 
-				deepest_level_points.emplace_back(std::vector<double>{ node->_x_max , node->_y_max , node->_z_min });
-				deepest_level_points.emplace_back(std::vector<double>{ node->_x_min, node->_y_max, node->_z_min});
 
-				deepest_level_points.emplace_back(std::vector<double>{ node->_x_min, node->_y_min , node->_z_max });
-				deepest_level_points.emplace_back(std::vector<double>{ node->_x_max , node->_y_min , node->_z_max });
+		deepest_level_points.emplace_back(std::vector<double>{ node->_x_max , node->_y_max , node->_z_min });
+		deepest_level_points.emplace_back(std::vector<double>{ node->_x_min, node->_y_max, node->_z_min});
 
-				deepest_level_points.emplace_back(std::vector<double>{ node->_x_max , node->_y_max , node->_z_max });
-				deepest_level_points.emplace_back(std::vector<double>{ node->_x_min , node->_y_max , node->_z_max });
-			}
-		}
+
+		deepest_level_points.emplace_back(std::vector<double>{ node->_x_min, node->_y_min , node->_z_max });
+		deepest_level_points.emplace_back(std::vector<double>{ node->_x_max , node->_y_min , node->_z_max });
+
+
+		deepest_level_points.emplace_back(std::vector<double>{ node->_x_max , node->_y_max , node->_z_max });
+		deepest_level_points.emplace_back(std::vector<double>{ node->_x_min , node->_y_max , node->_z_max });
+        }});
 //		std::cout << deepest_level_points.size()/8<<std::endl;
 //		for(auto point_vec : deepest_level_points)
 //			{

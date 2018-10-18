@@ -5,20 +5,19 @@ bool node::isInside_sphere(double r,double c_x,double c_y,double c_z)
 //	std::cout <<"c_x*c_x + c_y*c_y + c_z*c_z : " << c_x*c_x + c_y*c_y + c_z*c_z << " r*r : "<< r*r <<std::endl;
 	return ((c_x-0.5)*(c_x-0.5) + (c_y-0.5)*(c_y-0.5) + (c_z-0.5)*(c_z-0.5) <= r*r ) ? 1: 0;
 }
-node::node()
-{
-}
-node::node(double xmin,double xmax, double ymin, double ymax,double zmin,double zmax,unsigned int level ,std::weak_ptr<node> parent,std::function<bool(std::vector<double>)> isInsideFunc  ):_x_min(xmin),
-											_x_max(xmax),_y_min(ymin),_y_max(ymax),_z_min(zmin),_z_max(zmax),_level(level),m_parent(parent),_isInsideFunc(isInsideFunc)
+node::node() = default;
+
+
+node::node(double xmin,double xmax, double ymin, double ymax, double zmin, double zmax, unsigned int level ,std::weak_ptr<node> parent, std::function<bool(std::vector<double>)> isInsideFunc  ): _x_min(xmin), _x_max(xmax), _y_min(ymin), _y_max(ymax), _z_min(zmin), _z_max(zmax), _level(level), m_parent(parent), _isInsideFunc(isInsideFunc)
 {
 //		std::cout << "node generated " <<std::endl;
-		all_nodes.push_back(std::make_shared<node>(*this));
+		all_nodes.emplace_back(std::make_shared<node>(*this));
 //		for(int i = 0; i < 8 ; ++i)
 //		{
 //			m_children.emplace_back(nullptr);
 //		}
-		m_children = std::vector<std::shared_ptr<node>>(8,nullptr);
-		total_number_of_nodes++;
+		//m_children = std::vector<std::shared_ptr<node>>(8,nullptr);
+		++total_number_of_nodes;
 }
 void node::divideCell()
 {
@@ -46,7 +45,7 @@ void node::divideCell()
 	m_children[7] = std::make_shared<node>(center_x,_x_max,center_y,_y_max,center_z,_z_max,new_level,std::make_shared<node>(*this),_isInsideFunc);
 }
 
-unsigned int node::getLevelOfNode()
+unsigned int node::getLevelOfNode() const
 {
 	return this->_level;
 }
@@ -63,9 +62,9 @@ bool node::amICut(const unsigned int no_points)
 	for (unsigned int i = 0; i < no_points;++i)
 	{
 		double currentx = _x_min;
-		for (unsigned int j = 0; j < no_points;j++)
+		for (unsigned int j = 0; j < no_points;++j)
 		{
-			for(unsigned int k = 0;k < no_points;k++)
+			for(unsigned int k = 0;k < no_points;++k)
 			{
 				if(_isInsideFunc({currentx,currenty,currentz})) insideCounter++;
 				currentx+=dx;
@@ -103,10 +102,10 @@ void node::generateQuadTree(const unsigned int _max_level)
 unsigned int node::total_number_of_nodes = 0;
 std::vector<std::shared_ptr<node>> node::all_nodes = std::vector<std::shared_ptr<node>>();
 
-std::vector<std::vector<double>> node::getAllPoints()
+std::vector<std::vector<double>> node::getAllPoints() const
 {
 	std::vector<std::vector<double>> all_points;
-	for(auto node : this->all_nodes)
+	for(auto node : node::all_nodes)
 	{
 		all_points.emplace_back(std::vector<double>{node->_x_min,node->_y_min,node->_z_min});
 		all_points.emplace_back(std::vector<double>{node->_x_max,node->_y_min,node->_z_min});
@@ -136,11 +135,10 @@ std::vector<std::vector<double>> node::getAllPoints()
 	return all_points;
 }
 
-std::vector<std::vector<double>> node::getAllPointsDeepestLevel()
+std::vector<std::vector<double>> node::getAllPointsDeepestLevel() const
 {
 	std::vector<std::vector<double>> deepest_level_points;
-
-		for(auto node : this->all_nodes)
+		for(auto node : node::all_nodes)
 		{
 			if(node->getLevelOfNode() == max_level)
 			{
@@ -295,7 +293,7 @@ void node::showAll(const std::vector<std::vector<double>>& points)
 		renderWindowInteractor->Start();
 }
 
-void node::WriteUnstrucredGrid(const std::string output_name )
+void node::WriteUnstrucredGrid(const std::string output_name ) 
 {
 	vtkSmartPointer<vtkXMLUnstructuredGridWriter> writer =
 		        vtkSmartPointer<vtkXMLUnstructuredGridWriter>::New();

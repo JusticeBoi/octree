@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
 	auto isInsideHeart_1 = [](const std::vector<double>& center_vec)
 								{
 			return ((pow(pow(center_vec[0],2) + pow(center_vec[1],2) -1 ,3) -
-					pow(center_vec[0],2)*pow(center_vec[1],3)  < 0.0) || (center_vec[2] == 0))  ? 1 : 0;
+					pow(center_vec[0],2)*pow(center_vec[1],3)  < 0.0) && (center_vec[2] == 0))  ? 1 : 0;
 								};
 	//&& (center_vec[2] == 0)
 

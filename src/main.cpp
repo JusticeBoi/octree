@@ -35,8 +35,9 @@ int main(int argc, char *argv[])
 					pow(center_vec[0],2)*pow(center_vec[1],3)  < 0.0) && (center_vec[2] == 0))  ? 1 : 0;
 								};
 	//&& (center_vec[2] == 0)
-
-	std::shared_ptr<node> o = std::make_shared<node>(-1.5, 1.5 ,-1.5 ,1.5 , -1.5 , 1.5, 0 ,std::weak_ptr<node>(),isInsideHeart_1);
+    node::setInsideOutsideTestFunction(isInsideHeart_1);
+          
+	std::shared_ptr<node> o = std::make_shared<node>(-1.5, 1.5 ,-1.5 ,1.5 , -1.5 , 1.5, 0 ,std::weak_ptr<node>());
 
 
 	auto start = std::chrono::steady_clock::now();
@@ -44,8 +45,10 @@ int main(int argc, char *argv[])
 	auto end = std::chrono::steady_clock::now();
 	auto diff = end - start;
 	std::cout <<"duration generatequadtree :  "<< std::chrono::duration <double, std::milli> (diff).count() << " ms" << std::endl;
+    std::cout<<node::getTotalNumberOfNodes()<<std::endl;
 	o->WriteUnstrucredGridDeepestLevel("heart.vtu");
-	o->showAll(o->getAllPointsDeepestLevel());
+
+	//o->showAll(o->getAllPointsDeepestLevel());
 //	o->showAll(o->getAllPoints());
 
 

@@ -28,26 +28,27 @@ class node
 	double _z_min = 0;
 	double _z_max = 0;
 	unsigned int _level = 0;
-	std::function<bool(const std::vector<double>&)> _isInsideFunc;
+	static std::function<bool(const std::vector<double>&)> _isInsideFunc;
 
+	static std::vector<std::shared_ptr<node>> all_nodes;
 	bool isInside_sphere(double r,double c_x,double c_y,double c_z);
 	void divideCell();
 	bool amICut(const unsigned int no_points);
-	vtkSmartPointer<vtkUnstructuredGrid> assembleUGrid(const std::vector<std::vector<double>>& points);
+	vtkSmartPointer<vtkUnstructuredGrid> assembleUGrid(const std::vector<std::vector<double>>& points = node::getAllPoints() );
 
 public:
+    static void setInsideOutsideTestFunction(const std::function<bool(const std::vector<double>&)>& func);
 	node();
 	node(double xmin,double xmax, double ymin, double ymax,double zmin,double zmax,unsigned int level,
-			std::weak_ptr<node> parent,std::function<bool(const std::vector<double>)> isInsideFunc );
+			std::weak_ptr<node> parent);
 	void generateQuadTree(const unsigned int max_level);
-	void showAll(const std::vector<std::vector<double>>& points);
-	std::vector<std::vector<double>> getAllPoints() const;
-	static std::vector<std::shared_ptr<node>> all_nodes;
+	void showAll(const std::vector<std::vector<double>>& points = node::getAllPoints());
+	static std::vector<std::vector<double>> getAllPoints() ;
 	std::vector<std::vector<double>> getAllPointsDeepestLevel() const;
 	unsigned int getLevelOfNode() const ;
 	void WriteUnstrucredGrid(const std::string output_name );
 	void WriteUnstrucredGridDeepestLevel(const std::string output_name );
-
+    static unsigned int getTotalNumberOfNodes();
 
 
 

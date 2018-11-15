@@ -41,6 +41,6 @@
 #include <cstdlib>
 #include <functional>
 #include <cmath>
-
+#include "omp.h"
 
 #endif

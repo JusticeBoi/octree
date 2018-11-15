@@ -29,10 +29,15 @@ int main(int argc, char *argv[])
 				(0.1)*pow(center_vec[0],2)*pow(center_vec[2],3) - (9.0/80.0)*pow(center_vec[1],2)*pow(center_vec[2],3) < 0.0) ? 1 : 0;
 							};
 
-	auto isInsideHeart_1 = [](const std::vector<double>& center_vec)
+	//auto isInsideHeart_1 = [](const std::vector<double>& center_vec)
+	//							{
+	//		return ((pow(pow(center_vec[0],2) + pow(center_vec[1],2) -1 ,3) -
+	//				pow(center_vec[0],2)*pow(center_vec[1],3)  < 0.0) && (center_vec[2] == 0))  ? 1 : 0;
+	//							};
+	auto isInsideHeart_1 = [](double x, double y, double z)->bool
 								{
-			return ((pow(pow(center_vec[0],2) + pow(center_vec[1],2) -1 ,3) -
-					pow(center_vec[0],2)*pow(center_vec[1],3)  < 0.0) && (center_vec[2] == 0))  ? 1 : 0;
+			return ((pow(pow(x,2) + pow(y,2) -1 ,3) -
+					pow(x,2)*pow(y,3)  < 0.0) && (z == 0))  ? 1 : 0;
 								};
 	//&& (center_vec[2] == 0)
     node::setInsideOutsideTestFunction(isInsideHeart_1);
@@ -48,7 +53,7 @@ int main(int argc, char *argv[])
     std::cout<<node::getTotalNumberOfNodes()<<std::endl;
 	o->WriteUnstrucredGridDeepestLevel("heart.vtu");
 
-	//o->showAll(o->getAllPointsDeepestLevel());
+	o->showAll(o->getAllPointsDeepestLevel());
 //	o->showAll(o->getAllPoints());
 
 

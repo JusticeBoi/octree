@@ -1,17 +1,13 @@
 #include "octree.hpp"
 
-bool node::isInside_sphere(double r,double c_x,double c_y,double c_z)
-{
-//	std::cout <<"c_x*c_x + c_y*c_y + c_z*c_z : " << c_x*c_x + c_y*c_y + c_z*c_z << " r*r : "<< r*r <<std::endl;
-	return ((c_x-0.5)*(c_x-0.5) + (c_y-0.5)*(c_y-0.5) + (c_z-0.5)*(c_z-0.5) <= r*r ) ? 1: 0;
-}
 node::node() = default;
 
+//fptr _isInsideFunc = node::setInsideOutsideTestFunction
 
 node::node(double xmin,double xmax, double ymin, double ymax, double zmin, double zmax, unsigned int level ,std::weak_ptr<node> parent ): _x_min(xmin), _x_max(xmax), _y_min(ymin), _y_max(ymax), _z_min(zmin), _z_max(zmax), _level(level), m_parent(parent) 
 {
 //		std::cout << "node generated " <<std::endl;
-		all_nodes.emplace_back(std::make_shared<node>(*this));
+		all_nodes.emplace_back(std::make_unique<node>(*this));
 //		for(int i = 0; i < 8 ; ++i)
 //		{
 //			m_children.emplace_back(nullptr);
@@ -63,14 +59,17 @@ bool node::amICut(const unsigned int no_points)
 //	std::cout <<"dx: "<<dx <<" dy: "<<dy <<" dz: "<<dz<<std::endl;
 	double currentz = _z_min;
 	double currenty = _y_min;
+    //#pragma omp simd  
 	for (unsigned int i = 0; i < no_points;++i)
 	{
 		double currentx = _x_min;
 		for (unsigned int j = 0; j < no_points;++j)
 		{
-			for(unsigned int k = 0;k < no_points;++k)
+        //#pragma omp simd  
+			for(unsigned int k = 0; k < no_points;++k)
 			{
-				if(_isInsideFunc({currentx,currenty,currentz})) insideCounter++;
+				if(_isInsideFunc(currentx,currenty,currentz)) insideCounter++;
+				//if(my_function(currentx,currenty,currentz,_isInsideFunc)) insideCounter++;
 				currentx+=dx;
 
 			}
@@ -97,27 +96,26 @@ void node::generateQuadTree(const unsigned int _max_level)
 	if ( amICut(5) && _level < max_level)
 	{
 		this->divideCell();
-		for(auto child: m_children)
+		for(const auto& child: m_children)
 		{
 			child->generateQuadTree(max_level);
 		}
 	}
 }
-void node::setInsideOutsideTestFunction(const std::function<bool(const std::vector<double>&)> &func) {
-    _isInsideFunc = func;
-}
-std::function<bool(const std::vector<double>&)> node:: _isInsideFunc = {}; 
 
+void node::setInsideOutsideTestFunction(fptr func) {
+    node::_isInsideFunc = func;
+}
 unsigned int node::total_number_of_nodes = 0;
 
-std::vector<std::shared_ptr<node>> node::all_nodes = std::vector<std::shared_ptr<node>>();
+std::vector<std::unique_ptr<node>> node::all_nodes = std::vector<std::unique_ptr<node>>();
 
-
+fptr node::_isInsideFunc = nullptr;
 std::vector<std::vector<double>> node::getAllPoints() 
 {
 	std::vector<std::vector<double>> all_points;
     //all_points.reserve(node::all_nodes.size());
-    std::for_each(node::all_nodes.begin(), node::all_nodes.end(), [&all_points](const std::shared_ptr<node>& node)
+    std::for_each(node::all_nodes.begin(), node::all_nodes.end(), [&all_points](const std::unique_ptr<node>& node)
             {
 		all_points.emplace_back(std::vector<double>{node->_x_min,node->_y_min,node->_z_min});
 		all_points.emplace_back(std::vector<double>{node->_x_max,node->_y_min,node->_z_min});
@@ -151,7 +149,7 @@ std::vector<std::vector<double>> node::getAllPointsDeepestLevel() const
 {
 	std::vector<std::vector<double>> deepest_level_points;
     //deepest_level_points.reserve(node::all_nodes.size());
-    std::for_each(node::all_nodes.begin(), node::all_nodes.end(), [this,&deepest_level_points](const std::shared_ptr<node>& node)
+    std::for_each(node::all_nodes.begin(), node::all_nodes.end(), [this,&deepest_level_points](const std::unique_ptr<node>& node)
             {
 			if(node->getLevelOfNode() == max_level)
             {

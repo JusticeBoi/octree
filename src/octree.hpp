@@ -3,8 +3,13 @@
 
 #include "vtk_and_std_headers.hpp"
 
+template<typename CallBackFunction>
+bool my_function(double _x, double _y, double _z, CallBackFunction&& callback)
+{
+    return callback(_x,_y,_z);
+}
 
-
+typedef bool (*fptr)(double x, double y, double z);
 enum bounds
 {
 	X_MIN,
@@ -27,17 +32,17 @@ class node
 	double _y_max = 0;
 	double _z_min = 0;
 	double _z_max = 0;
-	unsigned int _level = 0;
-	static std::function<bool(const std::vector<double>&)> _isInsideFunc;
-
-	static std::vector<std::shared_ptr<node>> all_nodes;
+	unsigned int _level= 0;
+    static fptr _isInsideFunc;
+	static std::vector<std::unique_ptr<node>> all_nodes;
 	bool isInside_sphere(double r,double c_x,double c_y,double c_z);
 	void divideCell();
 	bool amICut(const unsigned int no_points);
 	vtkSmartPointer<vtkUnstructuredGrid> assembleUGrid(const std::vector<std::vector<double>>& points = node::getAllPoints() );
 
 public:
-    static void setInsideOutsideTestFunction(const std::function<bool(const std::vector<double>&)>& func);
+    static void setInsideOutsideTestFunction(bool (*_isInsideFunc)(double x, double y, double z));
+    //fptr setInsideOutsideTestFunction(fptr);
 	node();
 	node(double xmin,double xmax, double ymin, double ymax,double zmin,double zmax,unsigned int level,
 			std::weak_ptr<node> parent);
@@ -49,17 +54,6 @@ public:
 	void WriteUnstrucredGrid(const std::string output_name );
 	void WriteUnstrucredGridDeepestLevel(const std::string output_name );
     static unsigned int getTotalNumberOfNodes();
-
-
-
-
-
-
-
-
-
-
-
 
 
 

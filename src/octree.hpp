@@ -3,6 +3,13 @@
 
 #include "vtk_and_std_headers.hpp"
 
+constexpr bool func ( double x, double y, double z)
+{
+			//return ((pow(x*x + y*y -1 ,3) -
+//					x*x*pow(y,3)  < 0.0) && (z == 0))  ? 1 : 0;
+   return (x*x + y*y + z*z <=2) ? 1 : 0 ; 
+}
+
 template<typename CallBackFunction>
 bool my_function(double _x, double _y, double _z, CallBackFunction&& callback)
 {

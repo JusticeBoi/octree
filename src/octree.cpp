@@ -68,6 +68,7 @@ bool node::amICut(const unsigned int no_points)
         //#pragma omp simd  
 			for(unsigned int k = 0; k < no_points;++k)
 			{
+				//if(my_function(currentx,currenty,currentz,func)) insideCounter++;
 				if(_isInsideFunc(currentx,currenty,currentz)) insideCounter++;
 				//if(my_function(currentx,currenty,currentz,_isInsideFunc)) insideCounter++;
 				currentx+=dx;

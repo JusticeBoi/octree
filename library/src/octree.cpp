@@ -104,6 +104,7 @@ void node::generateQuadTree(const unsigned int _max_level)
 	}
 }
 
+
 void node::setInsideOutsideTestFunction(fptr func) {
     node::_isInsideFunc = func;
 }

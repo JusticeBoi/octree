@@ -1,6 +1,11 @@
 #include "octree.hpp"
-#include "implicitgeometry.hpp"
 
+using AbsGeo = implicit::AbsImplicitGeometry;
+using Circle = implicit::Circle;
+using Rectangle = implicit::Rectangle;
+using Union = implicit::Union;
+using Difference = implicit::Difference;
+using Intersection = implicit::Intersection;
 
 int main(int argc, char *argv[])
 {
@@ -12,20 +17,17 @@ int main(int argc, char *argv[])
 	}
 	int max_level = std::stoi(std::string(argv[1]));
 
-		//auto isInsideHeart_1 = [](const std::vector<double>& center_vec)
-	//							{
-	//		return ((pow(pow(center_vec[0],2) + pow(center_vec[1],2) -1 ,3) -
-	//				pow(center_vec[0],2)*pow(center_vec[1],3)  < 0.0) && (center_vec[2] == 0))  ? 1 : 0;
-	//							};
-	auto isInsideHeart_1 = [](double x, double y, double z)->bool
-								{
-			return ((pow(pow(x,2) + pow(y,2) -1 ,3) -
-					pow(x,2)*pow(y,3)  < 0.0) && (z == 0))  ? 1 : 0;
-								};
-	//&& (center_vec[2] == 0)
-    node::setInsideOutsideTestFunction(isInsideHeart_1);
-          
-	std::shared_ptr<node> o = std::make_shared<node>(-1.5, 1.5 ,-1.5 ,1.5 , -1.5 , 1.5, 0 ,std::weak_ptr<node>());
+    AbsGeo* circle = new Circle(0.0,0.0,1.0); 
+    AbsGeo* rec = new Rectangle(-1.0, -1.0, 1.0,1.0); 
+    AbsGeo* rec_slender = new Rectangle(-0.2, -3.0, 0.2,3.0); 
+    AbsGeo* circle_small = new Circle(0.0,0.0,0.2); 
+    AbsGeo* intersect = new Intersection(circle, rec);
+    AbsGeo* uni = new Union(intersect, rec_slender);
+    AbsGeo* difference = new Difference(uni, circle_small);
+
+
+	std::shared_ptr<node> o = std::make_shared<node>(-4.0, 4.0 ,-4.0 ,4.0 , 0.0 , 0.1, 0 ,std::weak_ptr<node>());
+    node::setGeometry( difference);
 
 
 	auto start = std::chrono::steady_clock::now();
@@ -34,9 +36,16 @@ int main(int argc, char *argv[])
 	auto diff = end - start;
 	std::cout <<"duration generatequadtree :  "<< std::chrono::duration <double, std::milli> (diff).count() << " ms" << std::endl;
     std::cout<<node::getTotalNumberOfNodes()<<std::endl;
-	o->WriteUnstrucredGridDeepestLevel("heart.vtu");
+    o->showAll(o->getAllPointsDeepestLevel());
+    o->showAll(o->getAllPoints());
 
-	o->showAll(o->getAllPointsDeepestLevel());
+    delete circle;
+    delete rec;
+    delete rec_slender;
+    delete circle_small;
+    delete uni;
+    delete intersect;
+    delete difference;
 
 
 	return 0;

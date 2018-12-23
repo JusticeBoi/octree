@@ -16,4 +16,5 @@ install_manifest.txt
 *Cell3DDemonstration.cpp
 *.vtu
 *.json
-
+*.so
+*.out

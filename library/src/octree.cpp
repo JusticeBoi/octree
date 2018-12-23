@@ -6,7 +6,6 @@ node::node() = default;
 
 node::node(double xmin,double xmax, double ymin, double ymax, double zmin, double zmax, unsigned int level ,std::weak_ptr<node> parent ): _x_min(xmin), _x_max(xmax), _y_min(ymin), _y_max(ymax), _z_min(zmin), _z_max(zmax), _level(level), m_parent(parent) 
 {
-//		std::cout << "node generated " <<std::endl;
 		all_nodes.emplace_back(std::make_unique<node>(*this));
 //		for(int i = 0; i < 8 ; ++i)
 //		{
@@ -17,11 +16,11 @@ node::node(double xmin,double xmax, double ymin, double ymax, double zmin, doubl
 }
 void node::divideCell()
 {
-//	std::cout <<"divide cell " <<std::endl;
 	double center_x = (_x_max + _x_min) * 0.5;
 	double center_y = (_y_max + _y_min) * 0.5;
 	double center_z = (_z_max + _z_min) * 0.5;
 	int new_level = _level + 1;
+    
 	//std::cout <<"size of m_children : "<<m_children.size() <<std::endl;
 	m_children[0] = std::make_shared<node>(_x_min,center_x,_y_min,center_y,_z_min,center_z,new_level,std::make_shared<node>(*this));
 
@@ -69,7 +68,7 @@ bool node::amICut(const unsigned int no_points)
 			for(unsigned int k = 0; k < no_points;++k)
 			{
 				//if(my_function(currentx,currenty,currentz,func)) insideCounter++;
-				if(_isInsideFunc(currentx,currenty,currentz)) insideCounter++;
+				if(geo_->inside(currentx, currenty,currentz)) insideCounter++;
 				//if(my_function(currentx,currenty,currentz,_isInsideFunc)) insideCounter++;
 				currentx+=dx;
 
@@ -105,14 +104,18 @@ void node::generateQuadTree(const unsigned int _max_level)
 }
 
 
-void node::setInsideOutsideTestFunction(fptr func) {
-    node::_isInsideFunc = func;
-}
 unsigned int node::total_number_of_nodes = 0;
+
+
+implicit::AbsImplicitGeometry* node::geo_ =  nullptr;
+
+void node::setGeometry(implicit::AbsImplicitGeometry* geo)
+{
+    geo_ = geo;
+}
 
 std::vector<std::unique_ptr<node>> node::all_nodes = std::vector<std::unique_ptr<node>>();
 
-fptr node::_isInsideFunc = nullptr;
 std::vector<std::vector<double>> node::getAllPoints() 
 {
 	std::vector<std::vector<double>> all_points;

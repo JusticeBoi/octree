@@ -4,20 +4,12 @@
 #include "vtk_and_std_headers.hpp"
 #include "implicitgeometry.hpp"
 
-constexpr bool func ( double x, double y, double z)
-{
-			//return ((pow(x*x + y*y -1 ,3) -
-//					x*x*pow(y,3)  < 0.0) && (z == 0))  ? 1 : 0;
-   return (x*x + y*y + z*z <=2) ? 1 : 0 ; 
-}
-
 template<typename CallBackFunction>
 bool my_function(double _x, double _y, double _z, CallBackFunction&& callback)
 {
     return callback(_x,_y,_z);
 }
 
-typedef bool (*fptr)(double x, double y, double z);
 enum bounds
 {
 	X_MIN,
@@ -35,24 +27,23 @@ class node
 	    unsigned int max_level;
 	    std::weak_ptr<node> m_parent = std::weak_ptr<node>();
 	    std::vector<std::shared_ptr<node>> m_children = std::vector<std::shared_ptr<node>>(8,nullptr); 
-	    double _x_min = 0;
-	    double _x_max = 0;
-	    double _y_min = 0;
-	    double _y_max = 0;
-	    double _z_min = 0;
-	    double _z_max = 0;
+	    double _x_min = 0.0;
+	    double _x_max = 0.0;
+	    double _y_min = 0.0;
+	    double _y_max = 0.0;
+	    double _z_min = 0.0;
+	    double _z_max = 0.0;
 	    unsigned int _level= 0;
-        static fptr _isInsideFunc;
 	    static std::vector<std::unique_ptr<node>> all_nodes;
-	    bool isInside_sphere(double r,double c_x,double c_y,double c_z);
 	    void divideCell();
 	    bool amICut(const unsigned int no_points);
+
 	    vtkSmartPointer<vtkUnstructuredGrid> assembleUGrid(const std::vector<std::vector<double>>& points = node::getAllPoints() );
-        implicit::AbsImplicitGeometry* geo_ ;
+        static implicit::AbsImplicitGeometry* geo_ ;
 
 
 public:
-    static void setInsideOutsideTestFunction(bool (*_isInsideFunc)(double x, double y, double z));
+    static void setGeometry(implicit::AbsImplicitGeometry* geo);
 	node();
 	node(double xmin,double xmax, double ymin, double ymax,double zmin,double zmax,unsigned int level,
 			std::weak_ptr<node> parent);
@@ -65,9 +56,6 @@ public:
 	void WriteUnstrucredGrid(const std::string output_name );
 	void WriteUnstrucredGridDeepestLevel(const std::string output_name );
     static unsigned int getTotalNumberOfNodes();
-
-
-
 };
 
 #endif

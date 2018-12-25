@@ -37,7 +37,6 @@ int main(int argc, char *argv[])
 	std::cout <<"duration generatequadtree :  "<< std::chrono::duration <double, std::milli> (diff).count() << " ms" << std::endl;
     std::cout<<node::getTotalNumberOfNodes()<<std::endl;
     o->showAll(o->getAllPointsDeepestLevel());
-    o->showAll(o->getAllPoints());
 
     delete circle;
     delete rec;

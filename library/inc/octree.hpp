@@ -4,29 +4,16 @@
 #include "vtk_and_std_headers.hpp"
 #include "implicitgeometry.hpp"
 
-template<typename CallBackFunction>
-bool my_function(double _x, double _y, double _z, CallBackFunction&& callback)
-{
-    return callback(_x,_y,_z);
-}
-
-enum bounds
-{
-	X_MIN,
-	X_MAX,
-	Y_MIN,
-	Y_MAX,
-	Z_MIN,
-	Z_MAX
-};
 
 class node
 {
     private:
 	    static unsigned int total_number_of_nodes;
 	    unsigned int max_level;
+
 	    std::weak_ptr<node> m_parent = std::weak_ptr<node>();
 	    std::vector<std::shared_ptr<node>> m_children = std::vector<std::shared_ptr<node>>(8,nullptr); 
+
 	    double _x_min = 0.0;
 	    double _x_max = 0.0;
 	    double _y_min = 0.0;
@@ -41,14 +28,12 @@ class node
 	    vtkSmartPointer<vtkUnstructuredGrid> assembleUGrid(const std::vector<std::vector<double>>& points = node::getAllPoints() );
         static implicit::AbsImplicitGeometry* geo_ ;
 
-
 public:
     static void setGeometry(implicit::AbsImplicitGeometry* geo);
 	node();
 	node(double xmin,double xmax, double ymin, double ymax,double zmin,double zmax,unsigned int level,
 			std::weak_ptr<node> parent);
 	void generateQuadTree(const unsigned int max_level);
-	void generateQuadTreeIterative(const unsigned int max_level);
 	void showAll(const std::vector<std::vector<double>>& points = node::getAllPoints());
 	static std::vector<std::vector<double>> getAllPoints() ;
 	std::vector<std::vector<double>> getAllPointsDeepestLevel() const;

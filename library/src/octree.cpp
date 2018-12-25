@@ -64,12 +64,9 @@ bool node::amICut(const unsigned int no_points)
 		double currentx = _x_min;
 		for (unsigned int j = 0; j < no_points;++j)
 		{
-        //#pragma omp simd  
 			for(unsigned int k = 0; k < no_points;++k)
 			{
-				//if(my_function(currentx,currenty,currentz,func)) insideCounter++;
 				if(geo_->inside(currentx, currenty,currentz)) insideCounter++;
-				//if(my_function(currentx,currenty,currentz,_isInsideFunc)) insideCounter++;
 				currentx+=dx;
 
 			}
@@ -79,13 +76,10 @@ bool node::amICut(const unsigned int no_points)
 		currenty = _y_min;
 		currentz+= dz;
 	}
-//	std::cout <<"currenty: "<<currenty<<" currentz: " << currentz<<std::endl;
-//	std::cout <<"inside counter : "<< insideCounter <<std::endl;
 	if(insideCounter != no_points*no_points*no_points && insideCounter)
 	{
 		cut = true;
 	}
-//	std::cout <<"cut: "<<cut<<std::endl;
 	return cut;
 
 

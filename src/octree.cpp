@@ -1,50 +1,77 @@
 #include "octree.hpp"
 
-bool node::isInside_sphere(double r,double c_x,double c_y,double c_z)
+node::node()
 {
-//	std::cout <<"c_x*c_x + c_y*c_y + c_z*c_z : " << c_x*c_x + c_y*c_y + c_z*c_z << " r*r : "<< r*r <<std::endl;
-	return ((c_x-0.5)*(c_x-0.5) + (c_y-0.5)*(c_y-0.5) + (c_z-0.5)*(c_z-0.5) <= r*r ) ? 1: 0;
+    std::cout <<"default constructed " <<'\n';
 }
-node::node() = default;
 
 
-node::node(double xmin,double xmax, double ymin, double ymax, double zmin, double zmax, unsigned int level ,std::weak_ptr<node> parent, std::function<bool(std::vector<double>)> isInsideFunc  ): _x_min(xmin), _x_max(xmax), _y_min(ymin), _y_max(ymax), _z_min(zmin), _z_max(zmax), _level(level), m_parent(parent), _isInsideFunc(isInsideFunc)
+node::node(double xmin,double xmax, double ymin, double ymax, double zmin, double zmax, unsigned int level ,std::weak_ptr<node> parent, const implicit::AbsImplicitGeometry* geo, std::vector<std::shared_ptr<node>>* all_nodes  ): _x_min(xmin), _x_max(xmax), _y_min(ymin), _y_max(ymax), _z_min(zmin), _z_max(zmax), _level(level), m_parent(parent), _geo(geo)
 {
-//		std::cout << "node generated " <<std::endl;
-		all_nodes.emplace_back(std::make_shared<node>(*this));
+    my_ptr_to_all_nodes = all_nodes;
+    all_nodes->emplace_back(std::make_shared<node>(*this));
+
 //		for(int i = 0; i < 8 ; ++i)
 //		{
 //			m_children.emplace_back(nullptr);
 //		}
 		//m_children = std::vector<std::shared_ptr<node>>(8,nullptr);
-		++total_number_of_nodes;
 }
-void node::divideCell()
-{
-//	std::cout <<"divide cell " <<std::endl;
+void node::divideCell() {
+
 	double center_x = (_x_max + _x_min) * 0.5;
 	double center_y = (_y_max + _y_min) * 0.5;
 	double center_z = (_z_max + _z_min) * 0.5;
 	int new_level = _level + 1;
 //	std::cout <<"size of m_children : "<<m_children.size() <<std::endl;
+    m_children.reserve(8);
+    //std::cout <<"before emplacing back"<<'\n';
+    //std::cout <<"size of m_children " << m_children.size() <<'\n';
 
-	m_children[0] = std::make_shared<node>(_x_min,center_x,_y_min,center_y,_z_min,center_z,new_level,std::make_shared<node>(*this),_isInsideFunc);
+	m_children.emplace_back(std::make_shared<node>(center_x,_x_max,center_y,_y_max,center_z,_z_max,new_level,shared_from_this(),_geo,my_ptr_to_all_nodes));
+    //std::cout <<"after emplacing back"<<'\n';
 
-	m_children[1] = std::make_shared<node>(center_x,_x_max,_y_min,center_y,_z_min,center_z,new_level,std::make_shared<node>(*this),_isInsideFunc);
+	m_children.emplace_back(std::make_shared<node>(_x_min,center_x,center_y,_y_max,center_z,_z_max,new_level,shared_from_this(),_geo,my_ptr_to_all_nodes));
 
-	m_children[2] = std::make_shared<node>(_x_min,center_x,center_y,_y_max,_z_min,center_z,new_level,std::make_shared<node>(*this),_isInsideFunc);
+	m_children.emplace_back(std::make_shared<node>(center_x,_x_max,_y_min,center_y,center_z,_z_max,new_level,shared_from_this(),_geo,my_ptr_to_all_nodes));
 
-	m_children[3] = std::make_shared<node>(center_x,_x_max,center_y,_y_max,_z_min,center_z,new_level,std::make_shared<node>(*this),_isInsideFunc);
+	m_children.emplace_back(std::make_shared<node>(_x_min,center_x,_y_min,center_y,center_z,_z_max,new_level,shared_from_this(),_geo,my_ptr_to_all_nodes));
 
-	m_children[4] = std::make_shared<node>(_x_min,center_x,_y_min,center_y,center_z,_z_max,new_level,std::make_shared<node>(*this),_isInsideFunc);
+	m_children.emplace_back(std::make_shared<node>(center_x,_x_max,center_y,_y_max,_z_min,center_z,new_level,shared_from_this(),_geo,my_ptr_to_all_nodes));
 
-	m_children[5] = std::make_shared<node>(center_x,_x_max,_y_min,center_y,center_z,_z_max,new_level,std::make_shared<node>(*this),_isInsideFunc);
+	m_children.emplace_back(std::make_shared<node>(_x_min,center_x,center_y,_y_max,_z_min,center_z,new_level,shared_from_this(),_geo,my_ptr_to_all_nodes));
 
-	m_children[6] = std::make_shared<node>(_x_min,center_x,center_y,_y_max,center_z,_z_max,new_level,std::make_shared<node>(*this),_isInsideFunc);
+	m_children.emplace_back(std::make_shared<node>(center_x,_x_max,_y_min,center_y,_z_min,center_z,new_level,shared_from_this(),_geo,my_ptr_to_all_nodes));
 
-	m_children[7] = std::make_shared<node>(center_x,_x_max,center_y,_y_max,center_z,_z_max,new_level,std::make_shared<node>(*this),_isInsideFunc);
+	m_children.emplace_back(std::make_shared<node>(_x_min,center_x,_y_min,center_y,_z_min,center_z,new_level,shared_from_this(),_geo,my_ptr_to_all_nodes));
+
+
+
+	//m_children.emplace_back(std::make_shared<node>(_x_min,center_x,_y_min,center_y,_z_min,center_z,new_level,std::make_shared<node>(*this),_geo,my_ptr_to_all_nodes));
+
+	//m_children.emplace_back(std::make_shared<node>(center_x,_x_max,_y_min,center_y,_z_min,center_z,new_level,std::make_shared<node>(*this),_geo,my_ptr_to_all_nodes));
+
+	//m_children.emplace_back(std::make_shared<node>(_x_min,center_x,center_y,_y_max,_z_min,center_z,new_level,std::make_shared<node>(*this),_geo,my_ptr_to_all_nodes));
+
+	//m_children.emplace_back(std::make_shared<node>(center_x,_x_max,center_y,_y_max,_z_min,center_z,new_level,std::make_shared<node>(*this),_geo,my_ptr_to_all_nodes));
+
+	//m_children.emplace_back(std::make_shared<node>(_x_min,center_x,_y_min,center_y,center_z,_z_max,new_level,std::make_shared<node>(*this),_geo,my_ptr_to_all_nodes));
+
+	//m_children.emplace_back(std::make_shared<node>(center_x,_x_max,_y_min,center_y,center_z,_z_max,new_level,std::make_shared<node>(*this),_geo,my_ptr_to_all_nodes));
+
+	//m_children.emplace_back(std::make_shared<node>(_x_min,center_x,center_y,_y_max,center_z,_z_max,new_level,std::make_shared<node>(*this),_geo,my_ptr_to_all_nodes));
+
+	//m_children.emplace_back(std::make_shared<node>(center_x,_x_max,center_y,_y_max,center_z,_z_max,new_level,std::make_shared<node>(*this),_geo,my_ptr_to_all_nodes));
 }
-
+bool node::hasChildren()
+{
+    return m_children.size() ? true : false;
+}
+bool node::isRoot()
+{
+    auto spt = m_parent.lock();
+    return !spt ? true : false;
+}
 unsigned int node::getLevelOfNode() const
 {
 	return this->_level;
@@ -56,7 +83,6 @@ bool node::amICut(const unsigned int no_points)
 	double dx = (_x_max - _x_min)/double(no_points-1);
 	double dy = (_y_max - _y_min)/double(no_points-1);
 	double dz = (_z_max - _z_min)/double(no_points-1);
-//	std::cout <<"dx: "<<dx <<" dy: "<<dy <<" dz: "<<dz<<std::endl;
 	double currentz = _z_min;
 	double currenty = _y_min;
 	for (unsigned int i = 0; i < no_points;++i)
@@ -66,7 +92,11 @@ bool node::amICut(const unsigned int no_points)
 		{
 			for(unsigned int k = 0;k < no_points;++k)
 			{
-				if(_isInsideFunc({currentx,currenty,currentz})) insideCounter++;
+				if(_geo->inside(currentx, currenty, currentz)) 
+                {
+                    //std::cout <<"x : " << currentx << " y :" <<currenty << " inside ! " << '\n'; 
+                    insideCounter++;
+                }
 				currentx+=dx;
 
 			}
@@ -93,19 +123,36 @@ void node::generateQuadTree(const unsigned int _max_level)
 	if ( amICut(5) && _level < max_level)
 	{
 		this->divideCell();
-		for(auto child: m_children)
+		for(auto& child: m_children)
 		{
 			child->generateQuadTree(max_level);
 		}
 	}
 }
-unsigned int node::total_number_of_nodes = 0;
-std::vector<std::shared_ptr<node>> node::all_nodes = std::vector<std::shared_ptr<node>>();
+void node::extendQuadTree(const unsigned int extend_by_level )
+{
+    if ( isRoot() )
+    {
+
+        std::vector<std::shared_ptr<node>> iter = *my_ptr_to_all_nodes;
+
+        for( auto& v : iter )
+        {
+            if ( v->getLevelOfNode() == max_level )
+            {
+
+                v->generateQuadTree(extend_by_level + max_level);
+            }
+        }
+        max_level += extend_by_level;
+    }
+
+}
 
 std::vector<std::vector<double>> node::getAllPoints() const
 {
 	std::vector<std::vector<double>> all_points;
-    std::for_each(node::all_nodes.begin(), node::all_nodes.end(), [&all_points](const std::shared_ptr<node>& node)
+    std::for_each(my_ptr_to_all_nodes->begin(), my_ptr_to_all_nodes->end(), [&all_points](const std::shared_ptr<node>& node)
             {
 		all_points.emplace_back(std::vector<double>{node->_x_min,node->_y_min,node->_z_min});
 		all_points.emplace_back(std::vector<double>{node->_x_max,node->_y_min,node->_z_min});
@@ -123,14 +170,6 @@ std::vector<std::vector<double>> node::getAllPoints() const
 		all_points.emplace_back(std::vector<double>{ node->_x_min , node->_y_max , node->_z_max });
             });
 
-//	for(auto point_vec : all_points)
-//	{
-//		for( auto point : point_vec)
-//		{
-//			std::cout << point <<"\t";
-//		}
-//		std::cout << std::endl;
-//	}
 
 	return all_points;
 }
@@ -138,7 +177,8 @@ std::vector<std::vector<double>> node::getAllPoints() const
 std::vector<std::vector<double>> node::getAllPointsDeepestLevel() const
 {
 	std::vector<std::vector<double>> deepest_level_points;
-    std::for_each(node::all_nodes.begin(), node::all_nodes.end(), [this,&deepest_level_points](const std::shared_ptr<node>& node)
+    deepest_level_points.reserve(std::pow(4,max_level));
+    std::for_each(my_ptr_to_all_nodes->begin(), my_ptr_to_all_nodes->end(), [this,&deepest_level_points](const std::shared_ptr<node>& node)
             {
 			if(node->getLevelOfNode() == max_level)
             {
@@ -157,15 +197,7 @@ std::vector<std::vector<double>> node::getAllPointsDeepestLevel() const
 		deepest_level_points.emplace_back(std::vector<double>{ node->_x_max , node->_y_max , node->_z_max });
 		deepest_level_points.emplace_back(std::vector<double>{ node->_x_min , node->_y_max , node->_z_max });
         }});
-//		std::cout << deepest_level_points.size()/8<<std::endl;
-//		for(auto point_vec : deepest_level_points)
-//			{
-//				for( auto point : point_vec)
-//				{
-//					std::cout << point <<"\t";
-//				}
-//				std::cout << std::endl;
-//			}
+
 		return deepest_level_points;
 
 }
@@ -186,6 +218,7 @@ vtkSmartPointer<vtkUnstructuredGrid> node::assembleUGrid(const std::vector<std::
 
 
 	std::vector<double> tmp_point;
+    tmp_point.reserve(3);
 
 	for(auto point_vec : input_points)
 	{
@@ -311,8 +344,6 @@ void node::WriteUnstrucredGridDeepestLevel(const std::string output_name )
 	vtkSmartPointer<vtkXMLUnstructuredGridWriter> writer =
 		        vtkSmartPointer<vtkXMLUnstructuredGridWriter>::New();
 	vtkSmartPointer<vtkUnstructuredGrid> unstructured_grid = assembleUGrid(getAllPointsDeepestLevel());
-//		    std::string folder_name = filename.substr(0,filename.find_last_of('/'));
-//		    std::string outname = "sphere_.vtu";
 		    writer->SetFileName(output_name.c_str());
 		    writer->SetInputData(unstructured_grid);
 		    writer->Write(); // writing the selected_out.vtu in the same folder.

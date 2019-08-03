@@ -2,6 +2,14 @@
 #define  __node_HPP__
 
 #include "vtk_and_std_headers.hpp"
+#include "AbsImplicitGeometry.hpp"
+#include "Circle.hpp"
+#include "Union.hpp"
+#include "Difference.hpp"
+#include "Intersection.hpp"
+#include "Rectangle.hpp"
+
+
 
 
 
@@ -15,12 +23,12 @@ enum bounds
 	Z_MAX
 };
 
-class node
+class node : public std::enable_shared_from_this<node>
 {
-	static unsigned int total_number_of_nodes;
 	unsigned int max_level;
 	std::weak_ptr<node> m_parent = std::weak_ptr<node>();
-	std::vector<std::shared_ptr<node>> m_children = std::vector<std::shared_ptr<node>>(8,nullptr); 
+	//std::vector<std::shared_ptr<node>> m_children = std::vector<std::shared_ptr<node>>(8,nullptr); 
+	std::vector<std::shared_ptr<node>> m_children ; 
 	double _x_min = 0;
 	double _x_max = 0;
 	double _y_min = 0;
@@ -28,31 +36,30 @@ class node
 	double _z_min = 0;
 	double _z_max = 0;
 	unsigned int _level = 0;
-	std::function<bool(const std::vector<double>&)> _isInsideFunc;
+    const implicit::AbsImplicitGeometry* _geo ;
 
-	bool isInside_sphere(double r,double c_x,double c_y,double c_z);
 	void divideCell();
 	bool amICut(const unsigned int no_points);
-	vtkSmartPointer<vtkUnstructuredGrid> assembleUGrid(const std::vector<std::vector<double>>& points);
 
 public:
 	node();
 	node(double xmin,double xmax, double ymin, double ymax,double zmin,double zmax,unsigned int level,
-			std::weak_ptr<node> parent,std::function<bool(const std::vector<double>)> isInsideFunc );
+			std::weak_ptr<node> parent, const implicit::AbsImplicitGeometry* geo,
+            std::vector<std::shared_ptr<node>>* all_nodes );
+
+    bool hasChildren();
+    bool isRoot();
 	void generateQuadTree(const unsigned int max_level);
 	void showAll(const std::vector<std::vector<double>>& points);
 	std::vector<std::vector<double>> getAllPoints() const;
-	static std::vector<std::shared_ptr<node>> all_nodes;
 	std::vector<std::vector<double>> getAllPointsDeepestLevel() const;
 	unsigned int getLevelOfNode() const ;
 	void WriteUnstrucredGrid(const std::string output_name );
 	void WriteUnstrucredGridDeepestLevel(const std::string output_name );
+	vtkSmartPointer<vtkUnstructuredGrid> assembleUGrid(const std::vector<std::vector<double>>& points);
 
-
-
-
-
-
+    void extendQuadTree(const unsigned int extend_by_level );
+	std::vector<std::shared_ptr<node>>* my_ptr_to_all_nodes;
 
 
 

@@ -13,4 +13,5 @@ bool Rectangle::inside( double x, double y, double z ) const
     return x >= x1_ && x <= x2_ && y >= y1_ && y <= y2_;
 }
 
+bool Rectangle::is2D() const { return true;}
 } // implicit

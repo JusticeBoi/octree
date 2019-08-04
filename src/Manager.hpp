@@ -4,9 +4,13 @@
 #include "octree.hpp"
 #include <limits>
 #include "Timer.hpp"
+#include "absAction.hpp"
+#include "ActionFactory.hpp"
+#include "Command.hpp"
+#include <execution>
 
-class Command;
 class Memento;
+class absAction;
 class Manager
 {
 
@@ -36,15 +40,28 @@ class Manager
         std::vector< std::vector<std::shared_ptr<node>> > vectorOfAllNodes; 
 
 
+        void createMemento();
+        void appendCommand(Command* command );
+
+        void applyAction(absAction* action);
+        void executeLastCommand();
+        std::shared_ptr<Command> getLastCommand();
+        std::shared_ptr<Command> getCommand(size_t index_from_last);
+
+
+
 
 
     private:
-        std::vector<std::shared_ptr<Memento>> mementoHistory_;
-        std::vector<std::shared_ptr<Command>> commandHistory_;
-
+        bool is2D_;
+        std::vector<std::shared_ptr<Memento>> mementoHistory_;   
+        std::vector<std::shared_ptr<Command>> commandHistory_;  
+        int numCommands_;
         //std::vector<std::shared_ptr<implicit::AbsImplicitGeometry>> geos_;
         std::vector<const implicit::AbsImplicitGeometry*> geos_;
         std::array<double,6> bbox_;
+
+        std::unique_ptr<ActionFactory> actionFactory_;
 
 
 
@@ -67,16 +84,19 @@ inline void KeypressCallbackFunction (
  vtkRenderWindowInteractor *iren = 
     static_cast<vtkRenderWindowInteractor*>(caller);
     Manager* m = static_cast<Manager*>(clientData);
-    std::cout <<"pressed  "<<iren->GetKeySym() << '\n';
-    if ( iren->GetKeySym()[0] == 'a')
+
+    std::shared_ptr<absAction> action = ActionFactory::createAction(iren->GetKeySym()[0]);
+    if ( action )
     {
-        //m->rootNodes_[0]->extendQuadTree(2);
-        m->extendAllGeoTreeDepth(1);
-        m->updateRenderAllGeometries();
-
-
-        std::cout <<"YES"<<'\n';
+        std::shared_ptr<Command> c = std::make_shared<Command>(m, action);
+        c->execute();
     }
+    else
+    {
+        std::cout <<"action is nullptr " <<'\n';
+    }
+
+    std::cout <<"pressed  "<<iren->GetKeySym() << '\n';
 }
 
 

@@ -34,6 +34,8 @@
 #include <vtkInteractorStyleTrackball.h>
 #include <vtkCallbackCommand.h>
 #include <vtkCommand.h>
+#include <vtkOrientationMarkerWidget.h>
+#include <vtkAxesActor.h>
 
 
 #include <vtkHexagonalPrism.h>

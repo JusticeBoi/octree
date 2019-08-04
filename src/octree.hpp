@@ -4,6 +4,7 @@
 #include "vtk_and_std_headers.hpp"
 #include "AbsImplicitGeometry.hpp"
 #include "Circle.hpp"
+#include "Sphere.hpp"
 #include "Union.hpp"
 #include "Difference.hpp"
 #include "Intersection.hpp"
@@ -39,7 +40,7 @@ class node : public std::enable_shared_from_this<node>
     const implicit::AbsImplicitGeometry* _geo ;
 
 	void divideCell();
-	bool amICut(const unsigned int no_points);
+	bool amICut(const int no_points);
 
 public:
 	node();
@@ -47,18 +48,18 @@ public:
 			std::weak_ptr<node> parent, const implicit::AbsImplicitGeometry* geo,
             std::vector<std::shared_ptr<node>>* all_nodes );
 
-    bool hasChildren();
-    bool isRoot();
-	void generateQuadTree(const unsigned int max_level);
+    bool hasChildren() const;
+    bool isRoot() const;
+	void generateQuadTree(const int max_level);
 	void showAll(const std::vector<std::vector<double>>& points);
 	std::vector<std::vector<double>> getAllPoints() const;
 	std::vector<std::vector<double>> getAllPointsDeepestLevel() const;
 	unsigned int getLevelOfNode() const ;
 	void WriteUnstrucredGrid(const std::string output_name );
 	void WriteUnstrucredGridDeepestLevel(const std::string output_name );
-	vtkSmartPointer<vtkUnstructuredGrid> assembleUGrid(const std::vector<std::vector<double>>& points);
+	vtkSmartPointer<vtkUnstructuredGrid> assembleUGrid(const std::vector<std::vector<double>>& points) const;
 
-    void extendQuadTree(const unsigned int extend_by_level );
+    void extendQuadTree(const  int extend_by_level );
 	std::vector<std::shared_ptr<node>>* my_ptr_to_all_nodes;
 
 

@@ -13,4 +13,5 @@ bool Difference::inside( double x, double y, double z ) const
     return operand1_->inside( x, y ) && !operand2_->inside( x, y );
 }
 
+bool Difference::is2D() const { return operand1_->is2D() && operand2_->is2D();}
 } // implicit

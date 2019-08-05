@@ -71,11 +71,12 @@ void Manager::executeLastCommand()
 }
 void Manager::applyAction(absAction* action)
 {
+    //this->createMemento();
     action->actOnManager(this);
      
 }
 
-void Manager::createMemento()
+std::shared_ptr<Memento>& Manager::createMemento()
 {
     std::vector<vtkSmartPointer<vtkDataSet>> mementos;
     std::transform( std::cbegin( rootNodes_ ), std::cend( rootNodes_ ), std::back_inserter( mementos), [](auto node)
@@ -83,7 +84,7 @@ void Manager::createMemento()
                     return node->assembleUGrid( node->getAllPointsDeepestLevel( ) ); 
             });
 
-    mementoHistory_.emplace_back(std::make_shared<Memento>(mementos));
+    return mementoHistory_.emplace_back(std::make_shared<Memento>(mementos));
 
 
 
@@ -214,19 +215,40 @@ void Manager::renderAllGeometriesAndStart()
 
 }
 
-void Manager::updateRenderAllGeometries()
+void Manager::updateRenderAllGeometries(const std::vector<vtkSmartPointer<vtkDataSet>>* renderables)
 {
     int i = 0;
 	auto start = std::chrono::steady_clock::now();
-    std::for_each( std::begin(rootNodes_), std::end( rootNodes_ ), [&i,this]( auto node )
+    if ( renderables )
+    {
+        std::cout <<"renderables!!!"<<'\n';
+        std::for_each( std::begin(rootNodes_), std::end( rootNodes_ ), [renderables, &i,this]( auto node )
+                {
+                    //auto allPoints = node->getAllPointsDeepestLevel();
+                    //std::cout <<"size of allPoints : " << allPoints.size() << '\n';
+                     //ResetRendererAndRender( mementoHistory_.back( )->getMemory()[i++] );
+                     //ResetRendererAndRender( node->assembleUGrid( node->getAllPointsDeepestLevel( ) ) );
+                     ResetRendererAndRender( (*renderables)[i++] );
+                });
+    }
+    else
+    {
+        //auto memory = mementoHistory_.back( )->getMemory( );
+        //auto memory = createMemento()->getMemory();
+        //std::for_each( std::begin(rootNodes_), std::end( rootNodes_ ), [&memory, &i,this]( auto node )
+        
+        std::for_each( std::begin(rootNodes_), std::end( rootNodes_ ), [ &i,this]( auto node )
             {
                 //auto allPoints = node->getAllPointsDeepestLevel();
                 //std::cout <<"size of allPoints : " << allPoints.size() << '\n';
                  //ResetRendererAndRender( mementoHistory_.back( )->getMemory()[i++] );
                  //ResetRendererAndRender( node->assembleUGrid( node->getAllPointsDeepestLevel( ) ) );
-                 if ( auto memory = mementoHistory_.back( )->getMemory( ) ; memory.size() ) ResetRendererAndRender( memory[i++] );
-                 else  ResetRendererAndRender( node->assembleUGrid( node->getAllPointsDeepestLevel( ) ) );
+                 //if ( memory.size() ) ResetRendererAndRender( memory[i++] );
+                 //else  ResetRendererAndRender( node->assembleUGrid( node->getAllPointsDeepestLevel( ) ) );
+
+                 ResetRendererAndRender( node->assembleUGrid( node->getAllPointsDeepestLevel( ) ) );
             });
+    }
    auto end = std::chrono::steady_clock::now();
    auto diff = end - start;
    std::cout <<"duration Manager updateRenderAllGeometries :  "<< std::chrono::duration <double, std::milli> (diff).count() << " ms" << std::endl;

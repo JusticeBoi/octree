@@ -41,8 +41,8 @@ int main(int argc, char *argv[])
 
     Manager M(-1., 1., -1., 1., -1., 1.);
     //M.addGeometry(&(*rec_shared));
-    //M.addGeometry(rec_shared.get());
-    M.addGeometry(sphere.get());
+    M.addGeometry(rec_shared.get());
+    //M.addGeometry(sphere.get());
     M.createRootNodes();
     //M.generateQuadTree(max_level);
     M.renderAllGeometriesAndStart();

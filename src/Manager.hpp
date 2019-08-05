@@ -32,7 +32,7 @@ class Manager
         void generateQuadTree(const unsigned int max_level);
 
         void renderAllGeometriesAndStart();
-        void updateRenderAllGeometries();
+        void updateRenderAllGeometries(const std::vector<vtkSmartPointer<vtkDataSet>>* renderables = nullptr);
 
         void extendAllGeoTreeDepth(const unsigned int extend_level ); 
 
@@ -40,7 +40,7 @@ class Manager
         std::vector< std::vector<std::shared_ptr<node>> > vectorOfAllNodes; 
 
 
-        void createMemento();
+        std::shared_ptr<Memento>& createMemento();
         void appendCommand(Command* command );
 
         void applyAction(absAction* action);
@@ -52,9 +52,9 @@ class Manager
 
 
 
+        std::vector<std::shared_ptr<Memento>> mementoHistory_;   
     private:
         bool is2D_;
-        std::vector<std::shared_ptr<Memento>> mementoHistory_;   
         std::vector<std::shared_ptr<Command>> commandHistory_;  
         int numCommands_;
         //std::vector<std::shared_ptr<implicit::AbsImplicitGeometry>> geos_;

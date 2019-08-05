@@ -10,7 +10,6 @@ std::shared_ptr<Command> Command::getCommand()
 }
 void Command::execute()
 {
-    m_->createMemento();
     m_->appendCommand(this);
     m_->applyAction(a_.get());
 }

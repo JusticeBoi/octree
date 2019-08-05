@@ -9,6 +9,8 @@ class Memento
         Memento(const std::vector<vtkSmartPointer<vtkDataSet>>& dataSet);
         Memento(const Memento& m) = default;
 
+        std::vector<vtkSmartPointer<vtkDataSet>> getMemory();
+
     private:
         std::vector<vtkSmartPointer<vtkDataSet>> dSet_;
 

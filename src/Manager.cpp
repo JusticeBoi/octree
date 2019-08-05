@@ -216,12 +216,20 @@ void Manager::renderAllGeometriesAndStart()
 
 void Manager::updateRenderAllGeometries()
 {
-    std::for_each( std::begin(rootNodes_), std::end( rootNodes_ ), [this]( auto node )
+    int i = 0;
+	auto start = std::chrono::steady_clock::now();
+    std::for_each( std::begin(rootNodes_), std::end( rootNodes_ ), [&i,this]( auto node )
             {
-                auto allPoints = node->getAllPointsDeepestLevel();
-                std::cout <<"size of allPoints : " << allPoints.size() << '\n';
-                    ResetRendererAndRender( node->assembleUGrid( allPoints ) );
+                //auto allPoints = node->getAllPointsDeepestLevel();
+                //std::cout <<"size of allPoints : " << allPoints.size() << '\n';
+                 //ResetRendererAndRender( mementoHistory_.back( )->getMemory()[i++] );
+                 //ResetRendererAndRender( node->assembleUGrid( node->getAllPointsDeepestLevel( ) ) );
+                 if ( auto memory = mementoHistory_.back( )->getMemory( ) ; memory.size() ) ResetRendererAndRender( memory[i++] );
+                 else  ResetRendererAndRender( node->assembleUGrid( node->getAllPointsDeepestLevel( ) ) );
             });
+   auto end = std::chrono::steady_clock::now();
+   auto diff = end - start;
+   std::cout <<"duration Manager updateRenderAllGeometries :  "<< std::chrono::duration <double, std::milli> (diff).count() << " ms" << std::endl;
 }
 void Manager::generateQuadTree(const unsigned int max_level)
 {

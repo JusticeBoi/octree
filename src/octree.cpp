@@ -88,6 +88,7 @@ bool node::amICut(const int no_points)
 	double currenty = _y_min;
     double currentx = _x_min;
     int no_points_x = no_points;
+    int no_points_square = no_points * no_points;
 
     if ( dz < std::numeric_limits<double>::min() )
     {
@@ -128,7 +129,7 @@ bool node::amICut(const int no_points)
 			currenty+= dy;
 			currentx = _x_min;
 		}
-        if ( !i && insideCounter != no_points*no_points && insideCounter ) return true;
+        if ( insideCounter && insideCounter != no_points*no_points*(i+1) ) return true;
 		currenty = _y_min;
 		currentz+= dz;
 	}
@@ -209,7 +210,7 @@ std::vector<std::vector<double>> node::getAllPointsDeepestLevel() const
 {
 	auto start = std::chrono::steady_clock::now();
 	std::vector<std::vector<double>> deepest_level_points;
-    deepest_level_points.reserve(std::pow(6,max_level));
+    deepest_level_points.reserve(std::pow(4,max_level));
     std::for_each(my_ptr_to_all_nodes->begin(), my_ptr_to_all_nodes->end(), [this,&deepest_level_points](const std::shared_ptr<node>& node)
             {
 			if(node->getLevelOfNode() == max_level)

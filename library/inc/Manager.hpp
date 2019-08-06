@@ -29,12 +29,12 @@ class Manager
 
 
         void createRootNodes();
-        void generateQuadTree(const unsigned int max_level);
+        void generateQuadTree(const int max_level);
 
         void renderAllGeometriesAndStart();
         void updateRenderAllGeometries(const std::vector<vtkSmartPointer<vtkDataSet>>* renderables = nullptr);
 
-        void extendAllGeoTreeDepth(const unsigned int extend_level ); 
+        void extendAllGeoTreeDepth(const int extend_level ); 
 
         std::vector<std::shared_ptr<node>> rootNodes_;
         std::vector< std::vector<std::shared_ptr<node>> > vectorOfAllNodes; 

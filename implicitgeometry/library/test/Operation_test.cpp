@@ -31,10 +31,12 @@ public:
         --totalNumberOfObjects;
     }
         
-    virtual bool inside( double x, double y ) const
+    bool inside( double x, double y, double z ) const override
     {
         return geometry_->inside( x, y );
     }
+
+    bool is2D() const override { return true; };
     
     static bool operandsWereDeleted( )
     {

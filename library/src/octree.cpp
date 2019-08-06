@@ -1,16 +1,23 @@
 #include "octree.hpp"
 
-node::node()
+//node::node()
+//{
+//    std::cout <<"default constructed " <<'\n';
+//}
+
+
+
+
+node::node(double xmin,double xmax, double ymin, double ymax, double zmin, double zmax, int level ,std::weak_ptr<node> parent, const implicit::AbsImplicitGeometry* geo, std::vector<std::shared_ptr<node>>* all_nodes  ): m_parent(parent), _x_min(xmin), _x_max(xmax), _y_min(ymin), _y_max(ymax), _z_min(zmin), _z_max(zmax),   _level(level), _geo(geo)
 {
-    std::cout <<"default constructed " <<'\n';
-}
+    my_ptr_to_all_nodes = all_nodes;
+    all_nodes->emplace_back(std::make_shared<node>(*this));
+    max_level = _level;
+    //if ( isRoot() )
+    //{
+    //    max_level = _level;
+    //}
 
-
-
-
-node::node(double xmin,double xmax, double ymin, double ymax, double zmin, double zmax, unsigned int level ,std::weak_ptr<node> parent, const implicit::AbsImplicitGeometry* geo, std::vector<std::shared_ptr<node>>* all_nodes  ): _x_min(xmin), _x_max(xmax), _y_min(ymin), _y_max(ymax), _z_min(zmin), _z_max(zmax), _level(level), m_parent(parent), _geo(geo)
-{
-    my_ptr_to_all_nodes = all_nodes; all_nodes->emplace_back(std::make_shared<node>(*this));
 
 //		for(int i = 0; i < 8 ; ++i)
 //		{
@@ -73,9 +80,14 @@ bool node::isRoot() const
     auto spt = m_parent.lock();
     return !spt ? true : false;
 }
-unsigned int node::getLevelOfNode() const
+int node::getLevelOfNode() const
 {
-	return this->_level;
+	return _level;
+}
+std::shared_ptr<node> node::getParent() const
+{
+    if (auto p = m_parent.lock()) return p;
+    else return nullptr;
 }
 bool node::amICut(const int no_points)
 {
@@ -163,26 +175,32 @@ void node::extendQuadTree(const int extend_by_level )
     if ( isRoot() )
     {
 
-        std::vector<std::shared_ptr<node>> iter = *my_ptr_to_all_nodes;
-
-
-        for( auto& v : iter )
+        if ( max_level == 0 )
         {
-            if ( v->getLevelOfNode() == max_level )
-            {
-
-                v->generateQuadTree(extend_by_level + max_level);
-            }
+            this->generateQuadTree(extend_by_level);
         }
-        max_level += extend_by_level;
-        std::cout <<"size of all nodes :" << my_ptr_to_all_nodes->size() << '\n';
+        else
+        {
+            std::vector<std::shared_ptr<node>> iter = *my_ptr_to_all_nodes;
+
+
+            for( auto& v : iter )
+            {
+                if ( v->getLevelOfNode() == max_level )
+                {
+
+                    v->generateQuadTree(extend_by_level + max_level);
+                }
+            }
+            max_level += extend_by_level;
+            std::cout <<"size of all nodes :" << my_ptr_to_all_nodes->size() << '\n';
+        }
     }
 
 }
 
 std::vector<std::vector<double>> node::getAllPoints() const
 {
-    std::cout <<"called getAllPoints " << '\n';
 	std::vector<std::vector<double>> all_points;
     std::for_each(my_ptr_to_all_nodes->begin(), my_ptr_to_all_nodes->end(), [&all_points](const std::shared_ptr<node>& node)
             {
@@ -209,6 +227,7 @@ std::vector<std::vector<double>> node::getAllPoints() const
 std::vector<std::vector<double>> node::getAllPointsDeepestLevel() const
 {
 	auto start = std::chrono::steady_clock::now();
+    std::cout <<"max level : " << max_level <<'\n';
 	std::vector<std::vector<double>> deepest_level_points;
     deepest_level_points.reserve(std::pow(4,max_level));
     std::for_each(my_ptr_to_all_nodes->begin(), my_ptr_to_all_nodes->end(), [this,&deepest_level_points](const std::shared_ptr<node>& node)

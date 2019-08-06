@@ -253,7 +253,7 @@ void Manager::updateRenderAllGeometries(const std::vector<vtkSmartPointer<vtkDat
    auto diff = end - start;
    std::cout <<"duration Manager updateRenderAllGeometries :  "<< std::chrono::duration <double, std::milli> (diff).count() << " ms" << std::endl;
 }
-void Manager::generateQuadTree(const unsigned int max_level)
+void Manager::generateQuadTree(const int max_level)
 {
 	auto start = std::chrono::steady_clock::now();
     std::for_each(std::begin(rootNodes_), std::end(rootNodes_),[max_level]( auto node )
@@ -268,7 +268,7 @@ void Manager::generateQuadTree(const unsigned int max_level)
    std::cout <<"duration Manager generateQuadTree :  "<< std::chrono::duration <double, std::milli> (diff).count() << " ms" << std::endl;
 
 }
-void Manager::extendAllGeoTreeDepth(const unsigned int extend_level )
+void Manager::extendAllGeoTreeDepth(const int extend_level )
 {
     std::for_each( std::begin(rootNodes_), std::end(rootNodes_), [extend_level](auto nodes)
             {

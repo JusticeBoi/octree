@@ -6,10 +6,11 @@ namespace implicit
 
 class AbsImplicitGeometryMock : public AbsImplicitGeometry
 {
-  	virtual bool inside( double x, double y ) const
+  	bool inside( double x, double y, double z ) const override
     {
   		return true;
     }
+    bool is2D () const override { return true;};
 };
 
 

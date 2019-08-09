@@ -10,7 +10,6 @@ install_manifest.txt
 .*settings
 *.pyc
 *.autotools
-*.txt
 *bin
 *trials.cpp
 *Cell3DDemonstration.cpp

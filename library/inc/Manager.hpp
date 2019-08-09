@@ -20,10 +20,10 @@ class Manager
                 double zmin = std::numeric_limits<double>::epsilon(),
                 double zmax = std::numeric_limits<double>::epsilon()) ;
 
-        void Render( vtkSmartPointer<vtkDataSet> renderable );
-        void ResetRendererAndRender(vtkSmartPointer<vtkDataSet> renderable_);
+        void Render( const vtkSmartPointer<vtkDataSet>  renderable );
+        void ResetRendererAndRender(const vtkSmartPointer<vtkDataSet> renderable_);
         void addNewShape(vtkSmartPointer<vtkDataSet> renderable );
-        void addGeometry(const implicit::AbsImplicitGeometry* geo );
+        void addGeometry(std::shared_ptr<implicit::AbsImplicitGeometry> geo );
         vtkSmartPointer<vtkDataSet> addedDSet;
         void start();
 
@@ -32,11 +32,12 @@ class Manager
         void generateQuadTree(const int max_level);
 
         void renderAllGeometriesAndStart();
-        void updateRenderAllGeometries(const std::vector<vtkSmartPointer<vtkDataSet>>* renderables = nullptr);
+        void updateRenderAllGeometries(const vtkSmartPointer<vtkDataSet> renderables = nullptr);
 
         void extendAllGeoTreeDepth(const int extend_level ); 
 
-        std::vector<std::shared_ptr<node>> rootNodes_;
+        std::shared_ptr<node> rootNode_;
+        //std::unique_ptr<node> rootNode_;
         std::vector< std::vector<std::shared_ptr<node>> > vectorOfAllNodes; 
 
 
@@ -58,7 +59,7 @@ class Manager
         std::vector<std::shared_ptr<Command>> commandHistory_;  
         int numCommands_;
         //std::vector<std::shared_ptr<implicit::AbsImplicitGeometry>> geos_;
-        std::vector<const implicit::AbsImplicitGeometry*> geos_;
+        std::shared_ptr<implicit::AbsImplicitGeometry> geo_ = nullptr;
         std::array<double,6> bbox_;
 
         std::unique_ptr<ActionFactory> actionFactory_;

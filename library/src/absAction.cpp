@@ -53,8 +53,8 @@ void Undo::actOnManager(Manager* m)
     //auto itoLastMemory = m->mementoHistory_.rbegin() + undoCounter++;
     //std::iter_swap(lastMemory, itoLastMemory);
     //std::vector<vtkSmartPointer<vtkDataSet>> memoryToRender = (*lastMemory)->getMemory();
-    std::vector<vtkSmartPointer<vtkDataSet>> memoryToRender = (*itoLastMemory)->getMemory();
-    m->updateRenderAllGeometries(&memoryToRender);
+    vtkSmartPointer<vtkDataSet> memoryToRender = (*itoLastMemory)->getMemory();
+    m->updateRenderAllGeometries(memoryToRender);
 }
 std::shared_ptr<absAction> Undo::clone( )
 {

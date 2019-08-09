@@ -34,6 +34,8 @@ int main(int argc, char *argv[])
     const std::shared_ptr<implicit::AbsImplicitGeometry> circle_shared = std::make_shared<implicit::Circle>(0.3, 0.3, 0.1 );
     const std::shared_ptr<implicit::AbsImplicitGeometry> sphere = std::make_shared<implicit::Sphere>(0.3, 0.3, 0.3, 0.1 );
 
+    const std::shared_ptr<implicit::AbsImplicitGeometry> recAndCircle = std::make_shared<implicit::Union>(rec_shared.get(), circle_shared.get() );
+
 
     std::vector<std::shared_ptr<node>> fill_me_up1;
     std::vector<std::shared_ptr<node>> fill_me_up2;
@@ -41,9 +43,13 @@ int main(int argc, char *argv[])
 
     Manager M(-1., 1., -1., 1., -1., 1.);
     //M.addGeometry(&(*rec_shared));
-    M.addGeometry(rec_shared.get());
+    //M.addGeometry(rec_shared.get());
+    //M.addGeometry(rec_shared);
+    //M.addGeometry(circle_shared);
+    M.addGeometry(sphere);
     //M.addGeometry(sphere.get());
     M.createRootNodes();
+    //M.StoredNodesInfo();
     //M.generateQuadTree(max_level);
     M.renderAllGeometriesAndStart();
 

@@ -6,13 +6,13 @@ class Manager;
 class Memento
 {
     public:
-        Memento(const std::vector<vtkSmartPointer<vtkDataSet>>& dataSet);
+        Memento(const vtkSmartPointer<vtkDataSet> dataSet);
         Memento(const Memento& m) = default;
 
-        std::vector<vtkSmartPointer<vtkDataSet>> getMemory();
+        vtkSmartPointer<vtkDataSet> getMemory();
 
     private:
-        std::vector<vtkSmartPointer<vtkDataSet>> dSet_;
+        vtkSmartPointer<vtkDataSet> dSet_ = nullptr;
 
 };
 

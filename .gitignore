@@ -20,3 +20,5 @@ vtk_trial*
 build
 .ycm_*
 tags
+VTK*
+qt*

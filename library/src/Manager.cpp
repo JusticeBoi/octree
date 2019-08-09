@@ -43,9 +43,18 @@ Manager::Manager(double xmin, double xmax, double ymin, double ymax,
 
 }
 
-void Manager::addGeometry(const implicit::AbsImplicitGeometry* geo )
+void Manager::addGeometry( std::shared_ptr<implicit::AbsImplicitGeometry> geo )
 {
-    geos_.push_back(geo);
+    if ( !geo_ )
+    {
+        geo_ = geo;
+    }
+    else
+    {
+        std::cout <<"count before: "<<geo_.use_count()<<'\n';
+        geo_ = std::make_shared<implicit::Union>(geo_.get(),geo.get());
+        std::cout <<"count after: "<<geo_.use_count()<<'\n';
+    }
 }
 void Manager::appendCommand(Command* command )
 {
@@ -78,33 +87,28 @@ void Manager::applyAction(absAction* action)
 
 std::shared_ptr<Memento>& Manager::createMemento()
 {
-    std::vector<vtkSmartPointer<vtkDataSet>> mementos;
-    std::transform( std::cbegin( rootNodes_ ), std::cend( rootNodes_ ), std::back_inserter( mementos), [](auto node)
-            {
-                    return node->assembleUGrid( node->getAllPointsDeepestLevel( ) ); 
-            });
 
-    return mementoHistory_.emplace_back(std::make_shared<Memento>(mementos));
+    return mementoHistory_.emplace_back(std::make_shared<Memento>(rootNode_->assembleUGrid(rootNode_->getAllPointsDeepestLevel( ) ) ) );
 
 
 
 }
 
-void Manager::ResetRendererAndRender(vtkSmartPointer<vtkDataSet> renderable_)
+void Manager::ResetRendererAndRender(const vtkSmartPointer<vtkDataSet> renderable_)
 {
     std::cout <<"RemoveAllViewProps"<<'\n';
-    //renderer_->RemoveAllViewProps();
+    renderer_->RemoveAllViewProps();
     
-    auto actorsCollection = renderer_->GetActors();
-    actorsCollection->InitTraversal();
-    auto o = actorsCollection->GetNextItem();
+    //auto actorsCollection = renderer_->GetActors();
+    //actorsCollection->InitTraversal();
+    //auto o = actorsCollection->GetNextItem();
 
-    while (o != 0 )
-    {
-        std::cout <<"removing"<<'\n';
-        renderer_->RemoveActor(o);
-        o = actorsCollection->GetNextItem();
-    }
+    //while (o != 0 )
+    //{
+    //    std::cout <<"removing"<<'\n';
+    //    renderer_->RemoveActor(o);
+    //    o = actorsCollection->GetNextItem();
+    //}
 
 
 
@@ -124,7 +128,7 @@ void Manager::ResetRendererAndRender(vtkSmartPointer<vtkDataSet> renderable_)
     renderer_->ResetCameraClippingRange();
 	renderWindow_->Render();
 }
-void Manager::Render(vtkSmartPointer<vtkDataSet> renderable_)
+void Manager::Render( const vtkSmartPointer<vtkDataSet> renderable_)
 {
         std::cout <<"inside Render" << '\n';
 		vtkSmartPointer<vtkDataSetMapper> mapper =
@@ -176,78 +180,42 @@ void Manager::addNewShape(vtkSmartPointer<vtkDataSet> renderable)
     addedDSet = renderable;
 }
 
+
 void Manager::createRootNodes()
 {
-    if ( rootNodes_.size() || !geos_.size() )
+    if ( geo_ )
     {
-        std::runtime_error(" Either root nodes are already created or there is no geometry to  create!"); 
-    }
-    
-    auto is2D = std::find_if(std::cbegin(geos_), std::cend(geos_),[](const implicit::AbsImplicitGeometry* geo )
-            {
-                return geo->is2D();
-            });
-    if ( is2D != std::cend(geos_) )
-    {
-        //2D
-        std::cout <<"2D2D"<<'\n';
-        is2D_ = true;
-        bbox_[Z_MIN] = std::numeric_limits<double>::epsilon();
-        bbox_[Z_MAX] = std::numeric_limits<double>::epsilon();
-    }
-    std::transform(std::cbegin(geos_), std::cend(geos_), std::back_inserter(rootNodes_),[this](const implicit::AbsImplicitGeometry* geo )
-            {
-                std::vector<std::shared_ptr<node> >& vec = vectorOfAllNodes.emplace_back(std::vector<std::shared_ptr<node>>());
 
-                return std::make_shared<node>( bbox_[X_MIN], bbox_[X_MAX], bbox_[Y_MIN], bbox_[Y_MAX], bbox_[Z_MIN], bbox_[Z_MAX],0, std::weak_ptr<node>() ,geo, &vec );
-            });
+        if ( geo_->is2D()  )
+        {
+            //2D
+            std::cout <<"2D2D"<<'\n';
+            is2D_ = true;
+            bbox_[Z_MIN] = std::numeric_limits<double>::epsilon();
+            bbox_[Z_MAX] = std::numeric_limits<double>::epsilon();
+        }
+
+        rootNode_ = std::make_unique<node>(bbox_[X_MIN], bbox_[X_MAX], bbox_[Y_MIN], bbox_[Y_MAX], bbox_[Z_MIN], bbox_[Z_MAX],0, std::weak_ptr<node>() ,geo_.get());
+    }
 }
 void Manager::renderAllGeometriesAndStart()
 {
-    std::cout <<"size of rootNodes_[0]->my_ptr_to_all_nodes->size() " << rootNodes_[0]->my_ptr_to_all_nodes->size() <<'\n';
-    std::for_each( std::begin(rootNodes_), std::end( rootNodes_ ), [this]( auto node )
-            {
-                    //Render( node->assembleUGrid( node->getAllPoints( ) ) );
-                    Render( node->assembleUGrid( node->getAllPointsDeepestLevel( ) ) );
-            });
-
+    Render(rootNode_->assembleUGrid(rootNode_->getAllPointsDeepestLevel( ) ));
     start();
 
 }
 
-void Manager::updateRenderAllGeometries(const std::vector<vtkSmartPointer<vtkDataSet>>* renderables)
+void Manager::updateRenderAllGeometries(const vtkSmartPointer<vtkDataSet> renderables)
 {
-    int i = 0;
 	auto start = std::chrono::steady_clock::now();
     if ( renderables )
     {
         std::cout <<"renderables!!!"<<'\n';
-        std::for_each( std::begin(rootNodes_), std::end( rootNodes_ ), [renderables, &i,this]( auto node )
-                {
-                    //auto allPoints = node->getAllPointsDeepestLevel();
-                    //std::cout <<"size of allPoints : " << allPoints.size() << '\n';
-                     //ResetRendererAndRender( mementoHistory_.back( )->getMemory()[i++] );
-                     //ResetRendererAndRender( node->assembleUGrid( node->getAllPointsDeepestLevel( ) ) );
-                     ResetRendererAndRender( (*renderables)[i++] );
-                });
+        ResetRendererAndRender( renderables );
     }
     else
     {
-        //auto memory = mementoHistory_.back( )->getMemory( );
-        //auto memory = createMemento()->getMemory();
-        //std::for_each( std::begin(rootNodes_), std::end( rootNodes_ ), [&memory, &i,this]( auto node )
-        
-        std::for_each( std::begin(rootNodes_), std::end( rootNodes_ ), [ &i,this]( auto node )
-            {
-                //auto allPoints = node->getAllPointsDeepestLevel();
-                //std::cout <<"size of allPoints : " << allPoints.size() << '\n';
-                 //ResetRendererAndRender( mementoHistory_.back( )->getMemory()[i++] );
-                 //ResetRendererAndRender( node->assembleUGrid( node->getAllPointsDeepestLevel( ) ) );
-                 //if ( memory.size() ) ResetRendererAndRender( memory[i++] );
-                 //else  ResetRendererAndRender( node->assembleUGrid( node->getAllPointsDeepestLevel( ) ) );
-
-                 ResetRendererAndRender( node->assembleUGrid( node->getAllPointsDeepestLevel( ) ) );
-            });
+        ResetRendererAndRender( rootNode_->assembleUGrid( rootNode_->getAllPointsDeepestLevel( ) ) );
     }
    auto end = std::chrono::steady_clock::now();
    auto diff = end - start;
@@ -255,14 +223,8 @@ void Manager::updateRenderAllGeometries(const std::vector<vtkSmartPointer<vtkDat
 }
 void Manager::generateQuadTree(const int max_level)
 {
-	auto start = std::chrono::steady_clock::now();
-    std::for_each(std::begin(rootNodes_), std::end(rootNodes_),[max_level]( auto node )
-             {
-                if ( !node->hasChildren( ) )
-                {
-                    node->generateQuadTree(max_level);
-                }
-             });
+   auto start = std::chrono::steady_clock::now();
+   rootNode_->generateQuadTree(max_level);
    auto end = std::chrono::steady_clock::now();
    auto diff = end - start;
    std::cout <<"duration Manager generateQuadTree :  "<< std::chrono::duration <double, std::milli> (diff).count() << " ms" << std::endl;
@@ -270,10 +232,7 @@ void Manager::generateQuadTree(const int max_level)
 }
 void Manager::extendAllGeoTreeDepth(const int extend_level )
 {
-    std::for_each( std::begin(rootNodes_), std::end(rootNodes_), [extend_level](auto nodes)
-            {
-                nodes->extendQuadTree( extend_level );
-            });
+    rootNode_->extendQuadTree(extend_level);
 }
 
 void Manager::start(){ renderWindowInteractor_->Start();};

@@ -8,11 +8,11 @@
 
 
 
-node::node(double xmin,double xmax, double ymin, double ymax, double zmin, double zmax, int level ,std::weak_ptr<node> parent, const implicit::AbsImplicitGeometry* geo, std::vector<std::shared_ptr<node>>* all_nodes  ): m_parent(parent), _x_min(xmin), _x_max(xmax), _y_min(ymin), _y_max(ymax), _z_min(zmin), _z_max(zmax),   _level(level), _geo(geo)
+node::node(double xmin,double xmax, double ymin, double ymax, double zmin, double zmax, int level ,std::weak_ptr<node> parent, const implicit::AbsImplicitGeometry* geo  ): m_parent(parent), _x_min(xmin), _x_max(xmax), _y_min(ymin), _y_max(ymax), _z_min(zmin), _z_max(zmax),   _level(level),max_level(level), _geo(geo)
 {
-    my_ptr_to_all_nodes = all_nodes;
-    all_nodes->emplace_back(std::make_shared<node>(*this));
-    max_level = _level;
+    //my_ptr_to_all_nodes = all_nodes;
+    //all_nodes->emplace_back(std::make_shared<node>(*this));
+    //max_level = _level;
     //if ( isRoot() )
     //{
     //    max_level = _level;
@@ -31,45 +31,25 @@ void node::divideCell() {
 	double center_y = (_y_max + _y_min) * 0.5;
 	double center_z = (_z_max + _z_min) * 0.5;
 	int new_level = _level + 1;
-//	std::cout <<"size of m_children : "<<m_children.size() <<std::endl;
+
     m_children.reserve(8);
-    //std::cout <<"before emplacing back"<<'\n';
-    //std::cout <<"size of m_children " << m_children.size() <<'\n';
 
-	m_children.emplace_back(std::make_shared<node>(center_x,_x_max,center_y,_y_max,center_z,_z_max,new_level,shared_from_this(),_geo,my_ptr_to_all_nodes));
-    //std::cout <<"after emplacing back"<<'\n';
+	m_children.emplace_back(std::make_shared<node>(center_x,_x_max,center_y,_y_max,center_z,_z_max,new_level,shared_from_this(),_geo));
 
-	m_children.emplace_back(std::make_shared<node>(_x_min,center_x,center_y,_y_max,center_z,_z_max,new_level,shared_from_this(),_geo,my_ptr_to_all_nodes));
+	m_children.emplace_back(std::make_shared<node>(_x_min,center_x,center_y,_y_max,center_z,_z_max,new_level,shared_from_this(),_geo));
 
-	m_children.emplace_back(std::make_shared<node>(center_x,_x_max,_y_min,center_y,center_z,_z_max,new_level,shared_from_this(),_geo,my_ptr_to_all_nodes));
+	m_children.emplace_back(std::make_shared<node>(center_x,_x_max,_y_min,center_y,center_z,_z_max,new_level,shared_from_this(),_geo));
 
-	m_children.emplace_back(std::make_shared<node>(_x_min,center_x,_y_min,center_y,center_z,_z_max,new_level,shared_from_this(),_geo,my_ptr_to_all_nodes));
+	m_children.emplace_back(std::make_shared<node>(_x_min,center_x,_y_min,center_y,center_z,_z_max,new_level,shared_from_this(),_geo));
 
-	m_children.emplace_back(std::make_shared<node>(center_x,_x_max,center_y,_y_max,_z_min,center_z,new_level,shared_from_this(),_geo,my_ptr_to_all_nodes));
+	m_children.emplace_back(std::make_shared<node>(center_x,_x_max,center_y,_y_max,_z_min,center_z,new_level,shared_from_this(),_geo));
 
-	m_children.emplace_back(std::make_shared<node>(_x_min,center_x,center_y,_y_max,_z_min,center_z,new_level,shared_from_this(),_geo,my_ptr_to_all_nodes));
+	m_children.emplace_back(std::make_shared<node>(_x_min,center_x,center_y,_y_max,_z_min,center_z,new_level,shared_from_this(),_geo));
 
-	m_children.emplace_back(std::make_shared<node>(center_x,_x_max,_y_min,center_y,_z_min,center_z,new_level,shared_from_this(),_geo,my_ptr_to_all_nodes));
+	m_children.emplace_back(std::make_shared<node>(center_x,_x_max,_y_min,center_y,_z_min,center_z,new_level,shared_from_this(),_geo));
 
-	m_children.emplace_back(std::make_shared<node>(_x_min,center_x,_y_min,center_y,_z_min,center_z,new_level,shared_from_this(),_geo,my_ptr_to_all_nodes));
+	m_children.emplace_back(std::make_shared<node>(_x_min,center_x,_y_min,center_y,_z_min,center_z,new_level,shared_from_this(),_geo));
 
-
-
-	//m_children.emplace_back(std::make_shared<node>(_x_min,center_x,_y_min,center_y,_z_min,center_z,new_level,std::make_shared<node>(*this),_geo,my_ptr_to_all_nodes));
-
-	//m_children.emplace_back(std::make_shared<node>(center_x,_x_max,_y_min,center_y,_z_min,center_z,new_level,std::make_shared<node>(*this),_geo,my_ptr_to_all_nodes));
-
-	//m_children.emplace_back(std::make_shared<node>(_x_min,center_x,center_y,_y_max,_z_min,center_z,new_level,std::make_shared<node>(*this),_geo,my_ptr_to_all_nodes));
-
-	//m_children.emplace_back(std::make_shared<node>(center_x,_x_max,center_y,_y_max,_z_min,center_z,new_level,std::make_shared<node>(*this),_geo,my_ptr_to_all_nodes));
-
-	//m_children.emplace_back(std::make_shared<node>(_x_min,center_x,_y_min,center_y,center_z,_z_max,new_level,std::make_shared<node>(*this),_geo,my_ptr_to_all_nodes));
-
-	//m_children.emplace_back(std::make_shared<node>(center_x,_x_max,_y_min,center_y,center_z,_z_max,new_level,std::make_shared<node>(*this),_geo,my_ptr_to_all_nodes));
-
-	//m_children.emplace_back(std::make_shared<node>(_x_min,center_x,center_y,_y_max,center_z,_z_max,new_level,std::make_shared<node>(*this),_geo,my_ptr_to_all_nodes));
-
-	//m_children.emplace_back(std::make_shared<node>(center_x,_x_max,center_y,_y_max,center_z,_z_max,new_level,std::make_shared<node>(*this),_geo,my_ptr_to_all_nodes));
 }
 bool node::hasChildren() const
 {
@@ -100,7 +80,7 @@ bool node::amICut(const int no_points)
 	double currenty = _y_min;
     double currentx = _x_min;
     int no_points_x = no_points;
-    int no_points_square = no_points * no_points;
+    //int no_points_square = no_points * no_points;
 
     if ( dz < std::numeric_limits<double>::min() )
     {
@@ -172,7 +152,7 @@ void node::generateQuadTree(const int _max_level)
 void node::extendQuadTree(const int extend_by_level )
 {
     std::cout <<"extendQuadTree " << '\n';
-    if ( isRoot() )
+    if ( isRoot( ) )
     {
 
         if ( max_level == 0 )
@@ -181,81 +161,149 @@ void node::extendQuadTree(const int extend_by_level )
         }
         else
         {
-            std::vector<std::shared_ptr<node>> iter = *my_ptr_to_all_nodes;
-
-
-            for( auto& v : iter )
+            auto recursiveExtendQuadTree = [this, extend_by_level](auto &&f, const node* node) ->void
             {
-                if ( v->getLevelOfNode() == max_level )
-                {
-
-                    v->generateQuadTree(extend_by_level + max_level);
-                }
-            }
+                    for(auto child : node->m_children)
+                    {
+                        child->max_level += extend_by_level;
+                        if ( child->getLevelOfNode( ) == max_level )
+                        {
+                            child->generateQuadTree(extend_by_level + max_level);
+                        }
+                        else
+                        {
+                            f(f,child.get());
+                        }
+                    }
+            };
+            recursiveExtendQuadTree(recursiveExtendQuadTree,this);
             max_level += extend_by_level;
-            std::cout <<"size of all nodes :" << my_ptr_to_all_nodes->size() << '\n';
         }
     }
 
 }
+void node::getAllPointsRecursive(const node* n, std::vector<std::vector<double>>& fill) const
+{
+		fill.emplace_back(std::vector<double>{n->_x_min,n->_y_min,n->_z_min});
+		fill.emplace_back(std::vector<double>{n->_x_max,n->_y_min,n->_z_min});
 
+		fill.emplace_back(std::vector<double>{ n->_x_max , n->_y_max , n->_z_min });
+		fill.emplace_back(std::vector<double>{ n->_x_min, n->_y_max, n->_z_min});
+
+		fill.emplace_back(std::vector<double>{ n->_x_min, n->_y_min , n->_z_max });
+		fill.emplace_back(std::vector<double>{ n->_x_max , n->_y_min , n->_z_max });
+
+		fill.emplace_back(std::vector<double>{ n->_x_max , n->_y_max , n->_z_max });
+		fill.emplace_back(std::vector<double>{ n->_x_min , n->_y_max , n->_z_max });
+
+        for(auto child : n->m_children )
+        {
+            getAllPointsDeepestLevelRecursive(child.get(), fill);
+        }
+}
 std::vector<std::vector<double>> node::getAllPoints() const
 {
 	std::vector<std::vector<double>> all_points;
-    std::for_each(my_ptr_to_all_nodes->begin(), my_ptr_to_all_nodes->end(), [&all_points](const std::shared_ptr<node>& node)
-            {
-		all_points.emplace_back(std::vector<double>{node->_x_min,node->_y_min,node->_z_min});
-		all_points.emplace_back(std::vector<double>{node->_x_max,node->_y_min,node->_z_min});
-
-
-		all_points.emplace_back(std::vector<double>{ node->_x_max , node->_y_max , node->_z_min });
-		all_points.emplace_back(std::vector<double>{ node->_x_min, node->_y_max, node->_z_min});
-
-
-		all_points.emplace_back(std::vector<double>{ node->_x_min, node->_y_min , node->_z_max });
-		all_points.emplace_back(std::vector<double>{ node->_x_max , node->_y_min , node->_z_max });
-
-
-		all_points.emplace_back(std::vector<double>{ node->_x_max , node->_y_max , node->_z_max });
-		all_points.emplace_back(std::vector<double>{ node->_x_min , node->_y_max , node->_z_max });
-            });
-
-
+    getAllPointsRecursive(this, all_points);
 	return all_points;
 }
 
+
+//std::vector<std::vector<double>> node::getAllPoints() const
+//{
+//	std::vector<std::vector<double>> all_points;
+//    std::for_each(my_ptr_to_all_nodes->begin(), my_ptr_to_all_nodes->end(), [&all_points](const std::shared_ptr<node>& node)
+//            {
+//		all_points.emplace_back(std::vector<double>{node->_x_min,node->_y_min,node->_z_min});
+//		all_points.emplace_back(std::vector<double>{node->_x_max,node->_y_min,node->_z_min});
+//
+//
+//		all_points.emplace_back(std::vector<double>{ node->_x_max , node->_y_max , node->_z_min });
+//		all_points.emplace_back(std::vector<double>{ node->_x_min, node->_y_max, node->_z_min});
+//
+//
+//		all_points.emplace_back(std::vector<double>{ node->_x_min, node->_y_min , node->_z_max });
+//		all_points.emplace_back(std::vector<double>{ node->_x_max , node->_y_min , node->_z_max });
+//
+//
+//		all_points.emplace_back(std::vector<double>{ node->_x_max , node->_y_max , node->_z_max });
+//		all_points.emplace_back(std::vector<double>{ node->_x_min , node->_y_max , node->_z_max });
+//            });
+//
+//
+//	return all_points;
+//}
+
+void node::getAllPointsDeepestLevelRecursive(const node* n, std::vector<std::vector<double>>& fill) const
+{
+        if ( n->getLevelOfNode() == max_level)
+        {
+		    fill.emplace_back(std::vector<double>{n->_x_min,n->_y_min,n->_z_min});
+		    fill.emplace_back(std::vector<double>{n->_x_max,n->_y_min,n->_z_min});
+
+		    fill.emplace_back(std::vector<double>{ n->_x_max , n->_y_max , n->_z_min });
+		    fill.emplace_back(std::vector<double>{ n->_x_min, n->_y_max, n->_z_min});
+
+		    fill.emplace_back(std::vector<double>{ n->_x_min, n->_y_min , n->_z_max });
+		    fill.emplace_back(std::vector<double>{ n->_x_max , n->_y_min , n->_z_max });
+
+		    fill.emplace_back(std::vector<double>{ n->_x_max , n->_y_max , n->_z_max });
+		    fill.emplace_back(std::vector<double>{ n->_x_min , n->_y_max , n->_z_max });
+        }
+
+        for(auto child : n->m_children )
+        {
+            getAllPointsDeepestLevelRecursive(child.get(), fill);
+        }
+}
 std::vector<std::vector<double>> node::getAllPointsDeepestLevel() const
 {
 	auto start = std::chrono::steady_clock::now();
     std::cout <<"max level : " << max_level <<'\n';
 	std::vector<std::vector<double>> deepest_level_points;
     deepest_level_points.reserve(std::pow(4,max_level));
-    std::for_each(my_ptr_to_all_nodes->begin(), my_ptr_to_all_nodes->end(), [this,&deepest_level_points](const std::shared_ptr<node>& node)
-            {
-			if(node->getLevelOfNode() == max_level)
-            {
-		deepest_level_points.emplace_back(std::vector<double>{node->_x_min,node->_y_min,node->_z_min});
-		deepest_level_points.emplace_back(std::vector<double>{node->_x_max,node->_y_min,node->_z_min});
-
-
-		deepest_level_points.emplace_back(std::vector<double>{ node->_x_max , node->_y_max , node->_z_min });
-		deepest_level_points.emplace_back(std::vector<double>{ node->_x_min, node->_y_max, node->_z_min});
-
-
-		deepest_level_points.emplace_back(std::vector<double>{ node->_x_min, node->_y_min , node->_z_max });
-		deepest_level_points.emplace_back(std::vector<double>{ node->_x_max , node->_y_min , node->_z_max });
-
-
-		deepest_level_points.emplace_back(std::vector<double>{ node->_x_max , node->_y_max , node->_z_max });
-		deepest_level_points.emplace_back(std::vector<double>{ node->_x_min , node->_y_max , node->_z_max });
-        }});
-
-	    auto end = std::chrono::steady_clock::now();
-	    auto diff = end - start;
-	    std::cout <<"duration getAllPointsDeepestLevel :  "<< std::chrono::duration <double, std::milli> (diff).count() << " ms" << std::endl;
-		return deepest_level_points;
+    if ( this->isRoot() ) getAllPointsDeepestLevelRecursive(this, deepest_level_points);
+    else { std::cout <<"not root something is wrong"<<'\n';}
+    std::cout <<"size of deepest_level_points : " << deepest_level_points.size() <<'\n';
+	auto end = std::chrono::steady_clock::now();
+	auto diff = end - start;
+	std::cout <<"duration getAllPointsDeepestLevel :  "<< std::chrono::duration <double, std::milli> (diff).count() << " ms" << std::endl;
+	return deepest_level_points;
 
 }
+//std::vector<std::vector<double>> node::getAllPointsDeepestLevel() const
+//{
+//	auto start = std::chrono::steady_clock::now();
+//    std::cout <<"max level : " << max_level <<'\n';
+//	std::vector<std::vector<double>> deepest_level_points;
+//    deepest_level_points.reserve(std::pow(4,max_level));
+//    std::for_each(my_ptr_to_all_nodes->begin(), my_ptr_to_all_nodes->end(), [this,&deepest_level_points](const std::shared_ptr<node> node)
+//            {
+//			if(node->getLevelOfNode() == max_level)
+//            {
+//            std::cout <<"here before"<<'\n';
+//		deepest_level_points.emplace_back(std::vector<double>{node->_x_min,node->_y_min,node->_z_min});
+//		deepest_level_points.emplace_back(std::vector<double>{node->_x_max,node->_y_min,node->_z_min});
+//
+//
+//		deepest_level_points.emplace_back(std::vector<double>{ node->_x_max , node->_y_max , node->_z_min });
+//		deepest_level_points.emplace_back(std::vector<double>{ node->_x_min, node->_y_max, node->_z_min});
+//
+//
+//		deepest_level_points.emplace_back(std::vector<double>{ node->_x_min, node->_y_min , node->_z_max });
+//		deepest_level_points.emplace_back(std::vector<double>{ node->_x_max , node->_y_min , node->_z_max });
+//
+//
+//		deepest_level_points.emplace_back(std::vector<double>{ node->_x_max , node->_y_max , node->_z_max });
+//		deepest_level_points.emplace_back(std::vector<double>{ node->_x_min , node->_y_max , node->_z_max });
+//        }});
+//
+//	    auto end = std::chrono::steady_clock::now();
+//	    auto diff = end - start;
+//	    std::cout <<"duration getAllPointsDeepestLevel :  "<< std::chrono::duration <double, std::milli> (diff).count() << " ms" << std::endl;
+//		return deepest_level_points;
+//
+//}
 
 
 vtkSmartPointer<vtkUnstructuredGrid> node::assembleUGrid(const std::vector<std::vector<double>>& input_points) const

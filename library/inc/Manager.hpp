@@ -15,7 +15,7 @@ class Manager
 {
 
     public:
-        Manager () = delete;
+        Manager( ) = delete;
         Manager( double xmin, double xmax, double ymin, double ymax,
                 double zmin = std::numeric_limits<double>::epsilon(),
                 double zmax = std::numeric_limits<double>::epsilon()) ;
@@ -25,29 +25,29 @@ class Manager
         void addNewShape(vtkSmartPointer<vtkDataSet> renderable );
         void addGeometry(std::shared_ptr<implicit::AbsImplicitGeometry> geo );
         vtkSmartPointer<vtkDataSet> addedDSet;
-        void start();
+        void start( );
 
 
-        void createRootNodes();
-        void generateQuadTree(const int max_level);
+        void createRootNodes( );
+        void generateQuadTree( const int max_level );
 
-        void renderAllGeometriesAndStart();
-        void updateRenderAllGeometries(const vtkSmartPointer<vtkDataSet> renderables = nullptr);
+        void renderAllGeometriesAndStart( );
+        void updateRenderAllGeometries( const vtkSmartPointer<vtkDataSet> renderables = nullptr );
 
-        void extendAllGeoTreeDepth(const int extend_level ); 
+        void extendAllGeoTreeDepth( const int extend_level ); 
 
         std::shared_ptr<node> rootNode_;
         //std::unique_ptr<node> rootNode_;
         std::vector< std::vector<std::shared_ptr<node>> > vectorOfAllNodes; 
 
 
-        std::shared_ptr<Memento>& createMemento();
-        void appendCommand(Command* command );
+        std::shared_ptr<Memento>& createMemento( );
+        void appendCommand( Command* command );
 
-        void applyAction(absAction* action);
-        void executeLastCommand();
-        std::shared_ptr<Command> getLastCommand();
-        std::shared_ptr<Command> getCommand(size_t index_from_last);
+        void applyAction( absAction* action );
+        void executeLastCommand( );
+        std::shared_ptr<Command> getLastCommand( );
+        std::shared_ptr<Command> getCommand( size_t index_from_last );
 
 
 
@@ -79,26 +79,26 @@ class Manager
 
 inline void KeypressCallbackFunction (
   vtkObject* caller,
-  long unsigned int vtkNotUsed(eventId),
+  long unsigned int vtkNotUsed( eventId ),
   void* clientData,
-  void* vtkNotUsed(callData) )
+  void* vtkNotUsed( callData ) )
 {
  vtkRenderWindowInteractor *iren = 
-    static_cast<vtkRenderWindowInteractor*>(caller);
-    Manager* m = static_cast<Manager*>(clientData);
+    static_cast<vtkRenderWindowInteractor*>( caller );
+    Manager* m = static_cast<Manager*>( clientData );
 
-    std::shared_ptr<absAction> action = ActionFactory::createAction(iren->GetKeySym()[0]);
+    std::shared_ptr<absAction> action = ActionFactory::createAction( iren->GetKeySym( )[0] );
     if ( action )
     {
-        std::shared_ptr<Command> c = std::make_shared<Command>(m, action);
-        c->execute();
+        std::shared_ptr<Command> c = std::make_shared<Command>( m, action );
+        c->execute( );
     }
     else
     {
-        std::cout <<"action is nullptr " <<'\n';
+        //std::cout <<"action is nullptr " <<'\n';
     }
 
-    std::cout <<"pressed  "<<iren->GetKeySym() << '\n';
+    //std::cout <<"pressed  "<<iren->GetKeySym() << '\n';
 }
 
 

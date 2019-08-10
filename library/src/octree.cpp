@@ -1,5 +1,8 @@
 #include "octree.hpp"
 
+#include "utilities/inc/logging.hpp"
+#include "utilities/inc/functionessentials.hpp"
+
 //node::node()
 //{
 //    std::cout <<"default constructed " <<'\n';
@@ -105,9 +108,6 @@ bool node::amICut(const int no_points)
 
     };
 
-	//for ( int i = 0; i < 1;++i)
-    //
-    //
 	for ( int i = 0; i < no_points_x;++i)
 	{
 		currentx = _x_min;
@@ -156,7 +156,7 @@ void node::generateQuadTree(const int _max_level)
 }
 void node::extendQuadTree(const int extend_by_level )
 {
-    std::cout <<"extendQuadTree " << '\n';
+    SCOPED_FUNCTION_START;
     if ( isRoot( ) )
     {
 
@@ -185,6 +185,7 @@ void node::extendQuadTree(const int extend_by_level )
             max_level += extend_by_level;
         }
     }
+    SCOPED_FUNCTION_END;
 
 }
 void node::getAllPointsUntilRecursive(const node* n,int level, std::vector<std::vector<double>>& fill) const
@@ -212,37 +213,15 @@ void node::getAllPointsUntilRecursive(const node* n,int level, std::vector<std::
 }
 std::vector<std::vector<double>> node::getAllPointsUntil(int max_l) const
 {
+    SCOPED_FUNCTION_START;
     if ( max_l == -1) max_l = max_level;
 	std::vector<std::vector<double>> all_points;
     getAllPointsUntilRecursive(this, max_l, all_points);
 	return all_points;
+    SCOPED_FUNCTION_END;
 }
 
 
-//std::vector<std::vector<double>> node::getAllPoints() const
-//{
-//	std::vector<std::vector<double>> all_points;
-//    std::for_each(my_ptr_to_all_nodes->begin(), my_ptr_to_all_nodes->end(), [&all_points](const std::shared_ptr<node>& node)
-//            {
-//		all_points.emplace_back(std::vector<double>{node->_x_min,node->_y_min,node->_z_min});
-//		all_points.emplace_back(std::vector<double>{node->_x_max,node->_y_min,node->_z_min});
-//
-//
-//		all_points.emplace_back(std::vector<double>{ node->_x_max , node->_y_max , node->_z_min });
-//		all_points.emplace_back(std::vector<double>{ node->_x_min, node->_y_max, node->_z_min});
-//
-//
-//		all_points.emplace_back(std::vector<double>{ node->_x_min, node->_y_min , node->_z_max });
-//		all_points.emplace_back(std::vector<double>{ node->_x_max , node->_y_min , node->_z_max });
-//
-//
-//		all_points.emplace_back(std::vector<double>{ node->_x_max , node->_y_max , node->_z_max });
-//		all_points.emplace_back(std::vector<double>{ node->_x_min , node->_y_max , node->_z_max });
-//            });
-//
-//
-//	return all_points;
-//}
 
 void node::getAllPointsAtLevelRecursive(const node* n, int max_l, std::vector<std::vector<double>>& fill) const
 {
@@ -268,9 +247,9 @@ void node::getAllPointsAtLevelRecursive(const node* n, int max_l, std::vector<st
 }
 std::vector<std::vector<double>> node::getAllPointsAtLevel(int max_l) const
 {
+    SCOPED_FUNCTION_START;
     if ( max_l == -1) max_l = max_level;
-	auto start = std::chrono::steady_clock::now();
-    std::cout <<"max level : " << max_level <<'\n';
+    //std::cout <<"max level : " << max_level <<'\n';
 	std::vector<std::vector<double>> deepest_level_points;
 
     deepest_level_points.reserve(std::pow(4,max_level));
@@ -279,51 +258,15 @@ std::vector<std::vector<double>> node::getAllPointsAtLevel(int max_l) const
 
     else { std::cout <<"not root something is wrong"<<'\n';}
 
-    std::cout <<"size of deepest_level_points : " << deepest_level_points.size() <<'\n';
-	auto end = std::chrono::steady_clock::now();
-	auto diff = end - start;
-	std::cout <<"duration getAllPointsAtLevel :  "<< std::chrono::duration <double, std::milli> (diff).count() << " ms" << std::endl;
+    //std::cout <<"size of deepest_level_points : " << deepest_level_points.size() <<'\n';
 	return deepest_level_points;
+    SCOPED_FUNCTION_END;
 
 }
-//std::vector<std::vector<double>> node::getAllPointsAtLevel() const
-//{
-//	auto start = std::chrono::steady_clock::now();
-//    std::cout <<"max level : " << max_level <<'\n';
-//	std::vector<std::vector<double>> deepest_level_points;
-//    deepest_level_points.reserve(std::pow(4,max_level));
-//    std::for_each(my_ptr_to_all_nodes->begin(), my_ptr_to_all_nodes->end(), [this,&deepest_level_points](const std::shared_ptr<node> node)
-//            {
-//			if(node->getLevelOfNode() == max_level)
-//            {
-//            std::cout <<"here before"<<'\n';
-//		deepest_level_points.emplace_back(std::vector<double>{node->_x_min,node->_y_min,node->_z_min});
-//		deepest_level_points.emplace_back(std::vector<double>{node->_x_max,node->_y_min,node->_z_min});
-//
-//
-//		deepest_level_points.emplace_back(std::vector<double>{ node->_x_max , node->_y_max , node->_z_min });
-//		deepest_level_points.emplace_back(std::vector<double>{ node->_x_min, node->_y_max, node->_z_min});
-//
-//
-//		deepest_level_points.emplace_back(std::vector<double>{ node->_x_min, node->_y_min , node->_z_max });
-//		deepest_level_points.emplace_back(std::vector<double>{ node->_x_max , node->_y_min , node->_z_max });
-//
-//
-//		deepest_level_points.emplace_back(std::vector<double>{ node->_x_max , node->_y_max , node->_z_max });
-//		deepest_level_points.emplace_back(std::vector<double>{ node->_x_min , node->_y_max , node->_z_max });
-//        }});
-//
-//	    auto end = std::chrono::steady_clock::now();
-//	    auto diff = end - start;
-//	    std::cout <<"duration getAllPointsAtLevel :  "<< std::chrono::duration <double, std::milli> (diff).count() << " ms" << std::endl;
-//		return deepest_level_points;
-//
-//}
-
 
 vtkSmartPointer<vtkUnstructuredGrid> node::assembleUGrid(const std::vector<std::vector<double>>& input_points) const
 		{
-	auto start = std::chrono::steady_clock::now();
+    SCOPED_FUNCTION_START;
 	vtkSmartPointer<vtkUnstructuredGrid> unstructured_grid =
 			vtkSmartPointer<vtkUnstructuredGrid>::New();
 
@@ -365,92 +308,10 @@ vtkSmartPointer<vtkUnstructuredGrid> node::assembleUGrid(const std::vector<std::
 		unstructured_grid->InsertNextCell(hex->GetCellType(),hex->GetPointIds());
 	}
     //unstructured_grid->vtkDataSet::PrintSelf(std::cout,vtkIndent());
-   auto end = std::chrono::steady_clock::now();
-   auto diff = end - start;
-	std::cout <<"duration of assembleUGrid:  "<< std::chrono::duration <double, std::milli> (diff).count() << " ms" << std::endl;
 	return unstructured_grid;
+    SCOPED_FUNCTION_END;
 
 		}
-void node::showAll(const std::vector<std::vector<double>>& points)
-{
-	auto start = std::chrono::steady_clock::now();
-	  vtkSmartPointer<vtkUnstructuredGrid> unstructured_grid = assembleUGrid(points);
-//
-//
-//	  vtkSmartPointer<vtkPoints> points =
-//	    vtkSmartPointer<vtkPoints>::New();
-//
-//		vtkSmartPointer<vtkHexahedron> hex =
-//				vtkSmartPointer<vtkHexahedron>::New();
-//
-//
-//
-//	  std::vector<double> tmp_point;
-//
-//	  for(auto point_vec : allpoints)
-//	  	{
-//	  		for( auto point_coord_scalar : point_vec)
-//	  		{
-//	  			tmp_point.push_back(point_coord_scalar);
-//	  		}
-//	  		points->InsertNextPoint(tmp_point[0],tmp_point[1],tmp_point[2]);
-//	  		tmp_point.clear();
-//	  	}
-//	  unstructured_grid->SetPoints(points);
-////	  std::cout <<"points->GetNumberOfPoints() : "<< points->GetNumberOfPoints()<<"\t"<<(points->GetNumberOfPoints()) / 8 <<std::endl;
-////	  for(int a = 0;a<8 ;++a)
-////	  {
-////	  std::cout << points->GetPoint(a)[0]<<"\t"<<points->GetPoint(a)[1]<<"\t"<<points->GetPoint(a)[2]<<std::endl;
-////	  }
-//	  for ( int j =0 ; j < int(points->GetNumberOfPoints() / 8)  ;++j)
-//	  	{
-//	  		hex->Initialize();
-//	  		hex->GetPointIds()->SetNumberOfIds(8);
-//	  	for( int i = 0; i < 8 ; ++i)
-//	  	{
-//	  		hex->GetPointIds()->SetId(i,8*j +i);
-//	  	}
-//	  	unstructured_grid->InsertNextCell(hex->GetCellType(),hex->GetPointIds());
-//	  	}
-//
-
-
-
-		vtkSmartPointer<vtkDataSetMapper> mapper =
-				vtkSmartPointer<vtkDataSetMapper>::New();
-
-		mapper->SetInputData(unstructured_grid);
-
-		vtkSmartPointer<vtkActor> actor =
-				vtkSmartPointer<vtkActor>::New();
-
-		actor->SetMapper(mapper);
-		actor->GetProperty()->SetRepresentationToWireframe();
-
-		vtkSmartPointer<vtkRenderer> renderer =
-				vtkSmartPointer<vtkRenderer>::New();
-
-		vtkSmartPointer<vtkRenderWindow> renderWindow =
-				vtkSmartPointer<vtkRenderWindow>::New();
-
-		renderWindow->AddRenderer(renderer);
-
-		vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
-				vtkSmartPointer<vtkRenderWindowInteractor>::New();
-
-		renderWindowInteractor->SetRenderWindow(renderWindow);
-
-		// Add the actor to the scene
-		renderer->AddActor(actor);
-
-		renderer->SetBackground(.3, .6, .3); // Background color green
-		renderWindow->Render();
-		auto end = std::chrono::steady_clock::now();
-		auto diff = end - start;
-		std::cout <<"duration of show all:  "<< std::chrono::duration <double, std::milli> (diff).count() << " ms" << std::endl;
-		renderWindowInteractor->Start();
-}
-
 void node::WriteUnstrucredGrid(const std::string output_name ) 
 {
 	vtkSmartPointer<vtkXMLUnstructuredGridWriter> writer =

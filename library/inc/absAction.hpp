@@ -11,8 +11,7 @@ class absAction
         virtual void actOnManager( Manager* m ) = 0;
         virtual std::shared_ptr<absAction> clone( ) = 0;
         static int undoCounter;
-        virtual ~absAction() = default;
-
+        virtual ~absAction( ) = default;
 };
 
 class RefineAllGeometries : public absAction
@@ -33,7 +32,7 @@ class Repeat : public absAction
 {
     public:
          void actOnManager( Manager* m ) override;
-         std::shared_ptr<absAction> clone() override;
+         std::shared_ptr<absAction> clone( ) override;
 };
 
 class Undo : public absAction

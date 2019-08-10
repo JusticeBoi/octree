@@ -11,9 +11,6 @@
 #include "Rectangle.hpp"
 
 
-
-
-
 enum bounds
 {
 	X_MIN,
@@ -50,7 +47,6 @@ public:
     bool hasChildren() const;
     bool isRoot() const;
 	void generateQuadTree(const int max_level);
-	void showAll(const std::vector<std::vector<double>>& points);
 	int getLevelOfNode() const ;
 	int getMaxLevel() const ;
 	void WriteUnstrucredGrid(const std::string output_name );
@@ -58,13 +54,15 @@ public:
 	vtkSmartPointer<vtkUnstructuredGrid> assembleUGrid(const std::vector<std::vector<double>>& points) const;
 
     void extendQuadTree(const  int extend_by_level );
-	std::vector<std::shared_ptr<node>>* my_ptr_to_all_nodes;
 
     std::shared_ptr<node> getParent() const;
-    std::vector<std::vector<double>> getAllPointsAtLevel(int max_level = -1) const;
-    std::vector<std::vector<double>> getAllPointsUntil(int max_level = -1) const;
+
     void getAllPointsAtLevelRecursive(const node* n, int max_level, std::vector<std::vector<double>>& fill) const;
     void getAllPointsUntilRecursive(const node* n, int level, std::vector<std::vector<double>>& fill) const;
+
+    std::vector<std::vector<double>> getAllPointsAtLevel(int max_level = -1) const;
+    std::vector<std::vector<double>> getAllPointsUntil(int max_level = -1) const;
+
 
 
 

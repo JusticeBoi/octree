@@ -1,6 +1,8 @@
 #include "ActionFactory.hpp"
 #include <iostream>
 
+#include "utilities/inc/logging.hpp"
+#include "utilities/inc/functionessentials.hpp"
 
 
 std::shared_ptr<absAction> ActionFactory::createAction(const char c )
@@ -21,8 +23,8 @@ std::shared_ptr<absAction> ActionFactory::createAction(const char c )
         //case 'U':
         //    return std::make_shared<Undo>();
         default:
-            std::cout <<"returning nullptr " << '\n';
-            return nullptr;
+        utilities::InfoLogger <<c<<" is an undefined Action \n";
+        return nullptr;
     }
 
 

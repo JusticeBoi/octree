@@ -2,9 +2,21 @@
 #include "Manager.hpp"
 #include <memory>
 
+#include "utilities/inc/logging.hpp"
+#include "utilities/inc/functionessentials.hpp"
+
 
 int main(int argc, char *argv[])
 {
+    utilities::LogConfiguration::fancy = true;
+    utilities::LogConfiguration::catchSignals = false;
+    utilities::LogConfiguration::showLoopSummary = true;
+    utilities::LogConfiguration::showProgressbar = true;
+    utilities::LogConfiguration::showTimingSummary = false;
+    std::string AdhoCppHeader = utilities::LogConfiguration::getAdhoCppHeader( );
+    utilities::log(AdhoCppHeader, utilities::LogLevels::ERROR );
+    //autoargs::ArgumentParser::parseCommandLine( argc, argv );
+    //utilities::InfoLogger << "\nArguments: \n" << autoargs::ArgumentParser::listArguments( ) << '\n';
 
 	if (argc != 2)
 	{

@@ -1,5 +1,6 @@
 #ifndef __Memento_HPP__
 #define  __Memento_HPP__
+
 #include "vtk_and_std_headers.hpp"
 
 class Manager;

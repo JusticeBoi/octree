@@ -20,10 +20,13 @@ find_package(VTK REQUIRED PATHS /home/oguz/personal_projects/octree/VTK-Install 
 #message(${VTK_INCLUDE_DIRS})
 #include(${VTK_USE_FILE})
 include_directories(implicitgeometry/library/inc)
+include_directories(implicitgeometry/library/inc)
 include_directories(implicitgeometry/external/catch)
 include_directories( library/inc )
+include_directories( . )
 
 add_subdirectory(implicitgeometry)
+add_subdirectory(utilities)
 
 file( GLOB LIBRARY_SOURCE_FILES library/src/*.cpp )
 file( GLOB TEST_SOURCE_FILES library/test/*.cpp )
@@ -32,5 +35,5 @@ add_definitions(${GCC_COVERAGE_COMPILE_FLAGS})
 add_executable(driver drivers/main.cpp ${LIBRARY_SOURCE_FILES} )
 add_executable(octree_testrunner ${TEST_SOURCE_FILES}  ${LIBRARY_SOURCE_FILES})
 
-target_link_libraries(driver ${VTK_LIBRARIES} implicitgeometry)
-target_link_libraries(octree_testrunner ${VTK_LIBRARIES} implicitgeometry)
+target_link_libraries(driver ${VTK_LIBRARIES} implicitgeometry utilities )
+target_link_libraries(octree_testrunner ${VTK_LIBRARIES} implicitgeometry utilities )

@@ -52,6 +52,7 @@ void Manager::addGeometry( std::shared_ptr<implicit::AbsImplicitGeometry> geo )
     else
     {
         std::cout <<"count before: "<<geo_.use_count()<<'\n';
+        geos_.push_back(geo_);
         geo_ = std::make_shared<implicit::Union>(geo_.get(),geo.get());
         std::cout <<"count after: "<<geo_.use_count()<<'\n';
     }
@@ -88,7 +89,7 @@ void Manager::applyAction(absAction* action)
 std::shared_ptr<Memento>& Manager::createMemento()
 {
 
-    return mementoHistory_.emplace_back(std::make_shared<Memento>(rootNode_->assembleUGrid(rootNode_->getAllPointsDeepestLevel( ) ) ) );
+    return mementoHistory_.emplace_back(std::make_shared<Memento>(rootNode_->assembleUGrid(rootNode_->getAllPointsAtLevel( ) ) ) );
 
 
 
@@ -96,21 +97,8 @@ std::shared_ptr<Memento>& Manager::createMemento()
 
 void Manager::ResetRendererAndRender(const vtkSmartPointer<vtkDataSet> renderable_)
 {
-    std::cout <<"RemoveAllViewProps"<<'\n';
     renderer_->RemoveAllViewProps();
     
-    //auto actorsCollection = renderer_->GetActors();
-    //actorsCollection->InitTraversal();
-    //auto o = actorsCollection->GetNextItem();
-
-    //while (o != 0 )
-    //{
-    //    std::cout <<"removing"<<'\n';
-    //    renderer_->RemoveActor(o);
-    //    o = actorsCollection->GetNextItem();
-    //}
-
-
 
 	vtkSmartPointer<vtkDataSetMapper> mapper =
 			vtkSmartPointer<vtkDataSetMapper>::New();
@@ -200,7 +188,8 @@ void Manager::createRootNodes()
 }
 void Manager::renderAllGeometriesAndStart()
 {
-    Render(rootNode_->assembleUGrid(rootNode_->getAllPointsDeepestLevel( ) ));
+    rendered_level = rootNode_->getMaxLevel();
+    Render(rootNode_->assembleUGrid(rootNode_->getAllPointsAtLevel( ) ));
     start();
 
 }
@@ -210,12 +199,11 @@ void Manager::updateRenderAllGeometries(const vtkSmartPointer<vtkDataSet> render
 	auto start = std::chrono::steady_clock::now();
     if ( renderables )
     {
-        std::cout <<"renderables!!!"<<'\n';
         ResetRendererAndRender( renderables );
     }
     else
     {
-        ResetRendererAndRender( rootNode_->assembleUGrid( rootNode_->getAllPointsDeepestLevel( ) ) );
+        ResetRendererAndRender( rootNode_->assembleUGrid( rootNode_->getAllPointsAtLevel( ) ) );
     }
    auto end = std::chrono::steady_clock::now();
    auto diff = end - start;

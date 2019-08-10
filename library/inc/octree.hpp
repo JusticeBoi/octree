@@ -27,7 +27,6 @@ enum bounds
 class node : public std::enable_shared_from_this<node>
 {
 	std::weak_ptr<node> m_parent = std::weak_ptr<node>();
-	//std::vector<std::shared_ptr<node>> m_children = std::vector<std::shared_ptr<node>>(8,nullptr); 
 	std::vector<std::shared_ptr<node>> m_children ; 
 	double _x_min = 0;
 	double _x_max = 0;
@@ -44,10 +43,6 @@ class node : public std::enable_shared_from_this<node>
 
 public:
 	node() = delete;
-	//node(double xmin,double xmax, double ymin, double ymax,double zmin,double zmax,int level,
-	//		std::weak_ptr<node> parent, const implicit::AbsImplicitGeometry* geo,
-    //        std::vector<std::shared_ptr<node>>* all_nodes );
-
 	node(double xmin,double xmax, double ymin, double ymax,double zmin,double zmax,int level,
 			std::weak_ptr<node> parent, const implicit::AbsImplicitGeometry* geo
             );
@@ -56,9 +51,8 @@ public:
     bool isRoot() const;
 	void generateQuadTree(const int max_level);
 	void showAll(const std::vector<std::vector<double>>& points);
-	//std::vector<std::vector<double>> getAllPoints() const;
-	//std::vector<std::vector<double>> getAllPointsDeepestLevel() const;
 	int getLevelOfNode() const ;
+	int getMaxLevel() const ;
 	void WriteUnstrucredGrid(const std::string output_name );
 	void WriteUnstrucredGridDeepestLevel(const std::string output_name );
 	vtkSmartPointer<vtkUnstructuredGrid> assembleUGrid(const std::vector<std::vector<double>>& points) const;
@@ -67,10 +61,10 @@ public:
 	std::vector<std::shared_ptr<node>>* my_ptr_to_all_nodes;
 
     std::shared_ptr<node> getParent() const;
-    std::vector<std::vector<double>> getAllPointsDeepestLevel() const;
-    std::vector<std::vector<double>> getAllPoints() const;
-    void getAllPointsDeepestLevelRecursive(const node* n, std::vector<std::vector<double>>& fill) const;
-    void getAllPointsRecursive(const node* n, std::vector<std::vector<double>>& fill) const;
+    std::vector<std::vector<double>> getAllPointsAtLevel(int max_level = -1) const;
+    std::vector<std::vector<double>> getAllPointsUntil(int max_level = -1) const;
+    void getAllPointsAtLevelRecursive(const node* n, int max_level, std::vector<std::vector<double>>& fill) const;
+    void getAllPointsUntilRecursive(const node* n, int level, std::vector<std::vector<double>>& fill) const;
 
 
 

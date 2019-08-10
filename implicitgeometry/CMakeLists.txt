@@ -25,8 +25,8 @@ add_library( implicitgeometry SHARED ${LIBRARY_SOURCE_FILES} ${HEADER_FILES} )
 
 # Add compilation target for our executables
 add_executable( implicitgeometry_testrunner ${TEST_SOURCE_FILES} ${HEADER_FILES} )
-#add_executable( main drivers/main.cpp ${HEADER_FILES} )
+add_executable( main drivers/main.cpp ${HEADER_FILES} )
 #
 ## Add link depenencies
 target_link_libraries( implicitgeometry_testrunner implicitgeometry )
-#target_link_libraries( main implicitgeometry )
+target_link_libraries( main implicitgeometry )

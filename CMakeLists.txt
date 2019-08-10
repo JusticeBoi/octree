@@ -12,7 +12,7 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 set(VTK_DIR "/home/oguz/personal_projects/octree/VTK-Install")
 set (CMAKE_CXX_STANDARD 17)
-set (CMAKE_CXX_FLAGS "-march=native -fopenmp -Ofast -Wall -Wextra -Wno-unused-parameter -g  ")
+set (CMAKE_CXX_FLAGS "-march=native -fopenmp -Ofast -Wall -Wextra -Wno-unused-parameter -Wshadow -Wnon-virtual-dtor -g  ")
 #SET(GCC_LINK_FLAGS  "-ltbb")
 #SET(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${GCC_LINK_FLAGS}")
 

@@ -10,8 +10,8 @@ AbsOperation::AbsOperation( AbsImplicitGeometry* operand1, AbsImplicitGeometry* 
 
 AbsOperation::~AbsOperation( )
 {
-    delete operand1_;
-    delete operand2_;
+    //delete operand1_;
+    //delete operand2_;
 }
 
 } // implicit

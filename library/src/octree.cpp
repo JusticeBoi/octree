@@ -64,6 +64,11 @@ int node::getLevelOfNode() const
 {
 	return _level;
 }
+
+int node::getMaxLevel() const 
+{
+    return max_level;
+}
 std::shared_ptr<node> node::getParent() const
 {
     if (auto p = m_parent.lock()) return p;
@@ -182,29 +187,34 @@ void node::extendQuadTree(const int extend_by_level )
     }
 
 }
-void node::getAllPointsRecursive(const node* n, std::vector<std::vector<double>>& fill) const
+void node::getAllPointsUntilRecursive(const node* n,int level, std::vector<std::vector<double>>& fill) const
 {
-		fill.emplace_back(std::vector<double>{n->_x_min,n->_y_min,n->_z_min});
-		fill.emplace_back(std::vector<double>{n->_x_max,n->_y_min,n->_z_min});
+        if ( n->getLevelOfNode() <= level)
+        {
+		    fill.emplace_back(std::vector<double>{n->_x_min,n->_y_min,n->_z_min});
+		    fill.emplace_back(std::vector<double>{n->_x_max,n->_y_min,n->_z_min});
 
-		fill.emplace_back(std::vector<double>{ n->_x_max , n->_y_max , n->_z_min });
-		fill.emplace_back(std::vector<double>{ n->_x_min, n->_y_max, n->_z_min});
+		    fill.emplace_back(std::vector<double>{ n->_x_max , n->_y_max , n->_z_min });
+		    fill.emplace_back(std::vector<double>{ n->_x_min, n->_y_max, n->_z_min});
 
-		fill.emplace_back(std::vector<double>{ n->_x_min, n->_y_min , n->_z_max });
-		fill.emplace_back(std::vector<double>{ n->_x_max , n->_y_min , n->_z_max });
+		    fill.emplace_back(std::vector<double>{ n->_x_min, n->_y_min , n->_z_max });
+		    fill.emplace_back(std::vector<double>{ n->_x_max , n->_y_min , n->_z_max });
 
-		fill.emplace_back(std::vector<double>{ n->_x_max , n->_y_max , n->_z_max });
-		fill.emplace_back(std::vector<double>{ n->_x_min , n->_y_max , n->_z_max });
+		    fill.emplace_back(std::vector<double>{ n->_x_max , n->_y_max , n->_z_max });
+		    fill.emplace_back(std::vector<double>{ n->_x_min , n->_y_max , n->_z_max });
+
+        }
 
         for(auto child : n->m_children )
         {
-            getAllPointsDeepestLevelRecursive(child.get(), fill);
+            getAllPointsUntilRecursive(child.get(),level, fill);
         }
 }
-std::vector<std::vector<double>> node::getAllPoints() const
+std::vector<std::vector<double>> node::getAllPointsUntil(int max_l) const
 {
+    if ( max_l == -1) max_l = max_level;
 	std::vector<std::vector<double>> all_points;
-    getAllPointsRecursive(this, all_points);
+    getAllPointsUntilRecursive(this, max_l, all_points);
 	return all_points;
 }
 
@@ -234,9 +244,9 @@ std::vector<std::vector<double>> node::getAllPoints() const
 //	return all_points;
 //}
 
-void node::getAllPointsDeepestLevelRecursive(const node* n, std::vector<std::vector<double>>& fill) const
+void node::getAllPointsAtLevelRecursive(const node* n, int max_l, std::vector<std::vector<double>>& fill) const
 {
-        if ( n->getLevelOfNode() == max_level)
+        if ( n->getLevelOfNode() == max_l)
         {
 		    fill.emplace_back(std::vector<double>{n->_x_min,n->_y_min,n->_z_min});
 		    fill.emplace_back(std::vector<double>{n->_x_max,n->_y_min,n->_z_min});
@@ -253,25 +263,30 @@ void node::getAllPointsDeepestLevelRecursive(const node* n, std::vector<std::vec
 
         for(auto child : n->m_children )
         {
-            getAllPointsDeepestLevelRecursive(child.get(), fill);
+            getAllPointsAtLevelRecursive(child.get(),max_l, fill);
         }
 }
-std::vector<std::vector<double>> node::getAllPointsDeepestLevel() const
+std::vector<std::vector<double>> node::getAllPointsAtLevel(int max_l) const
 {
+    if ( max_l == -1) max_l = max_level;
 	auto start = std::chrono::steady_clock::now();
     std::cout <<"max level : " << max_level <<'\n';
 	std::vector<std::vector<double>> deepest_level_points;
+
     deepest_level_points.reserve(std::pow(4,max_level));
-    if ( this->isRoot() ) getAllPointsDeepestLevelRecursive(this, deepest_level_points);
+
+    if ( this->isRoot() ) getAllPointsAtLevelRecursive(this,max_l, deepest_level_points);
+
     else { std::cout <<"not root something is wrong"<<'\n';}
+
     std::cout <<"size of deepest_level_points : " << deepest_level_points.size() <<'\n';
 	auto end = std::chrono::steady_clock::now();
 	auto diff = end - start;
-	std::cout <<"duration getAllPointsDeepestLevel :  "<< std::chrono::duration <double, std::milli> (diff).count() << " ms" << std::endl;
+	std::cout <<"duration getAllPointsAtLevel :  "<< std::chrono::duration <double, std::milli> (diff).count() << " ms" << std::endl;
 	return deepest_level_points;
 
 }
-//std::vector<std::vector<double>> node::getAllPointsDeepestLevel() const
+//std::vector<std::vector<double>> node::getAllPointsAtLevel() const
 //{
 //	auto start = std::chrono::steady_clock::now();
 //    std::cout <<"max level : " << max_level <<'\n';
@@ -300,7 +315,7 @@ std::vector<std::vector<double>> node::getAllPointsDeepestLevel() const
 //
 //	    auto end = std::chrono::steady_clock::now();
 //	    auto diff = end - start;
-//	    std::cout <<"duration getAllPointsDeepestLevel :  "<< std::chrono::duration <double, std::milli> (diff).count() << " ms" << std::endl;
+//	    std::cout <<"duration getAllPointsAtLevel :  "<< std::chrono::duration <double, std::milli> (diff).count() << " ms" << std::endl;
 //		return deepest_level_points;
 //
 //}
@@ -440,7 +455,7 @@ void node::WriteUnstrucredGrid(const std::string output_name )
 {
 	vtkSmartPointer<vtkXMLUnstructuredGridWriter> writer =
 		        vtkSmartPointer<vtkXMLUnstructuredGridWriter>::New();
-	vtkSmartPointer<vtkUnstructuredGrid> unstructured_grid = assembleUGrid(getAllPoints());
+	vtkSmartPointer<vtkUnstructuredGrid> unstructured_grid = assembleUGrid(getAllPointsUntil());
 
 		    writer->SetFileName(output_name.c_str());
 		    writer->SetInputData(unstructured_grid);
@@ -451,7 +466,7 @@ void node::WriteUnstrucredGridDeepestLevel(const std::string output_name )
 {
 	vtkSmartPointer<vtkXMLUnstructuredGridWriter> writer =
 		        vtkSmartPointer<vtkXMLUnstructuredGridWriter>::New();
-	vtkSmartPointer<vtkUnstructuredGrid> unstructured_grid = assembleUGrid(getAllPointsDeepestLevel());
+	vtkSmartPointer<vtkUnstructuredGrid> unstructured_grid = assembleUGrid(getAllPointsAtLevel());
 		    writer->SetFileName(output_name.c_str());
 		    writer->SetInputData(unstructured_grid);
 		    writer->Write(); // writing the selected_out.vtu in the same folder.

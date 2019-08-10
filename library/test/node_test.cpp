@@ -29,9 +29,11 @@ TEST_CASE( "node_test" )
 
 
     /* a cube has 8 points */
-    CHECK(rootNode->getAllPoints().size() == 8);
+    CHECK(rootNode->getAllPointsUntil().size() == 8);
 
-    CHECK(rootNode->getAllPointsDeepestLevel().size() == 8);
+    CHECK(rootNode->getAllPointsUntil(0).size() == 8);
+
+    CHECK(rootNode->getAllPointsAtLevel().size() == 8);
 
 
     CHECK(rootNode->getLevelOfNode() == 0);
@@ -42,9 +44,13 @@ TEST_CASE( "node_test" )
 
     CHECK(rootNode->hasChildren());
 
-    CHECK(rootNode->getAllPoints().size() == 8 + 8*8);
+    CHECK(rootNode->getAllPointsUntil().size() == 8 + 8*8);
 
-    CHECK(rootNode->getAllPointsDeepestLevel().size() ==  8*8);
+    CHECK(rootNode->getAllPointsUntil(0).size() == 8);
+
+    CHECK(rootNode->getAllPointsUntil(1).size() == 8 + 8*8);
+
+    CHECK(rootNode->getAllPointsAtLevel().size() ==  8*8);
 
     CHECK(rootNode->getLevelOfNode() ==  0);
 
@@ -62,9 +68,9 @@ TEST_CASE( "node_test" )
 
 
     /* a cube has 8 points */
-    CHECK(rootNode_2->getAllPoints().size() == 8);
+    CHECK(rootNode_2->getAllPointsUntil().size() == 8);
 
-    CHECK(rootNode_2->getAllPointsDeepestLevel().size() == 8);
+    CHECK(rootNode_2->getAllPointsAtLevel().size() == 8);
 
 
     CHECK(rootNode_2->getLevelOfNode() == 0);
@@ -76,9 +82,13 @@ TEST_CASE( "node_test" )
     CHECK(rootNode_2->isRoot());
 
 
-    CHECK(rootNode_2->getAllPoints().size() == 8 + 8*8);
+    CHECK(rootNode_2->getAllPointsUntil().size() == 8 + 8*8);
 
-    CHECK(rootNode_2->getAllPointsDeepestLevel().size() ==  8*8);
+    CHECK(rootNode_2->getAllPointsUntil(0).size() == 8 );
+
+    CHECK(rootNode_2->getAllPointsUntil(1).size() == 8 + 8*8 );
+
+    CHECK(rootNode_2->getAllPointsAtLevel().size() ==  8*8);
 
     CHECK(rootNode_2->getLevelOfNode() ==  0);
 

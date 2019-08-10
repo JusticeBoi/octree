@@ -52,7 +52,7 @@ class Manager
 
 
 
-
+        int rendered_level = 0;
         std::vector<std::shared_ptr<Memento>> mementoHistory_;   
     private:
         bool is2D_;
@@ -60,6 +60,7 @@ class Manager
         int numCommands_;
         //std::vector<std::shared_ptr<implicit::AbsImplicitGeometry>> geos_;
         std::shared_ptr<implicit::AbsImplicitGeometry> geo_ = nullptr;
+        std::vector<std::shared_ptr<implicit::AbsImplicitGeometry>> geos_ ;
         std::array<double,6> bbox_;
 
         std::unique_ptr<ActionFactory> actionFactory_;

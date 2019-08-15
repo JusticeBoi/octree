@@ -33,6 +33,7 @@ class Manager
 
         void renderAllGeometriesAndStart( );
         void updateRenderAllGeometries( const vtkSmartPointer<vtkDataSet> renderables = nullptr );
+        void updateRenderWholeTree();
 
         void extendAllGeoTreeDepth( const int extend_level ); 
 
@@ -48,6 +49,8 @@ class Manager
         void executeLastCommand( );
         std::shared_ptr<Command> getLastCommand( );
         std::shared_ptr<Command> getCommand( size_t index_from_last );
+
+        bool isOnly2DGeometry();
 
 
 

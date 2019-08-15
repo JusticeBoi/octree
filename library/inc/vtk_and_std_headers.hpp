@@ -36,6 +36,10 @@
 #include <vtkCommand.h>
 #include <vtkOrientationMarkerWidget.h>
 #include <vtkAxesActor.h>
+#include <vtkObjectFactory.h>
+#include <vtkCoordinate.h>
+#include <vtkRendererCollection.h>
+#include <vtkAbstractPicker.h>
 
 
 #include <vtkHexagonalPrism.h>

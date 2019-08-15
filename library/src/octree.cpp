@@ -1,9 +1,7 @@
 #include "octree.hpp"
 
 #include "utilities/inc/logging.hpp"
-#include "utilities/inc/functionessentials.hpp"
-
-//node::node()
+#include "utilities/inc/functionessentials.hpp" //node::node()
 //{
 //    std::cout <<"default constructed " <<'\n';
 //}
@@ -166,7 +164,7 @@ void node::extendQuadTree(const int extend_by_level )
         }
         else
         {
-            auto recursiveExtendQuadTree = [this, extend_by_level](auto &&f, const node* node) ->void
+            auto recursiveExtendQuadTree = [this, extend_by_level](auto &&f, const node* node) -> void
             {
                     for(auto child : node->m_children)
                     {
@@ -206,7 +204,7 @@ void node::getAllPointsUntilRecursive(const node* n,int level, std::vector<std::
 
         }
 
-        for(auto child : n->m_children )
+        for(auto& child : n->m_children )
         {
             getAllPointsUntilRecursive(child.get(),level, fill);
         }
@@ -215,12 +213,77 @@ std::vector<std::vector<double>> node::getAllPointsUntil(int max_l) const
 {
     SCOPED_FUNCTION_START;
     if ( max_l == -1) max_l = max_level;
+
 	std::vector<std::vector<double>> all_points;
+
     getAllPointsUntilRecursive(this, max_l, all_points);
+
 	return all_points;
     SCOPED_FUNCTION_END;
 }
 
+bool node::isPointInsideMe(const Point& p )
+{
+    
+    //bool return_val =  (_z_max <= std::numeric_limits<double>::epsilon() && _z_min <= std::numeric_limits<double>::epsilon() ) ?
+    //                            p[0] >= _x_min && p[1] >= _y_min &&  p[0] <= _x_max && p[1] <= _y_max:
+    //                                p[0] >= _x_min && p[1] >= _y_min && p[2] >= _z_min && p[0] <= _x_max && p[1] <= _y_max && p[2] <= _z_max ;
+
+    //bool return_val =p[0] >= _x_min && p[1] >= _y_min &&  p[0] <= _x_max && p[1] <= _y_max;
+
+    //if ( return_val )
+    //{
+    //    std::cout <<" my x min : " << _x_min << " my _x_max : " << _x_max << " my y min : " << _y_min << " my y max : " << _y_max <<'\n';
+    //    std::cout <<"pointx: " << p[0] << " point y : "<< p[1] << '\n';
+    //}
+    return p[0] >= _x_min && p[1] >= _y_min &&  p[0] <= _x_max && p[1] <= _y_max;
+}
+void node::refineTowardsPoint( const Point& p )
+{
+
+    if ( this->isRoot() )
+    {
+        bool divided = false;
+        auto recursiveFindLeaf = [&p,&divided](auto&& f, const node * n) -> void
+        {
+            for ( auto& child : n->m_children )
+            {
+
+                if ( !child->hasChildren() )
+                {
+                    if ( child->isPointInsideMe(p) )
+                    {
+                        child->divideCell();
+                        divided = true;
+                    }
+                }
+                else
+                {
+                    f(f,child.get());
+                }
+            }
+        };
+    if ( !this->hasChildren() ) 
+    {
+        if ( this->isPointInsideMe(p) )
+        {
+            this->divideCell();
+            divided = true;
+        }
+    }
+    else
+    {
+        recursiveFindLeaf(recursiveFindLeaf, this );
+    }
+
+    if ( divided )
+    {
+        ++max_level;
+    }
+
+
+    }
+}
 
 
 void node::getAllPointsAtLevelRecursive(const node* n, int max_l, std::vector<std::vector<double>>& fill) const

@@ -1,6 +1,7 @@
 #include "Manager.hpp"
 #include "Command.hpp"
 #include "Memento.hpp"
+#include "mouseInteractor.hpp"
 
 #include "utilities/inc/logging.hpp"
 #include "utilities/inc/functionessentials.hpp"
@@ -40,7 +41,14 @@ Manager::Manager(double xmin, double xmax, double ymin, double ymax,
     renderWindowInteractor_->AddObserver (
     vtkCommand::KeyPressEvent, keypressCallback );
 
-    style = vtkSmartPointer<vtkInteractorStyleTrackballCamera>::New(); 
+    //style = vtkSmartPointer<vtkInteractorStyleTrackballCamera>::New(); 
+
+    vtkSmartPointer<customMouseInteractorStyle> style_2 =
+                vtkSmartPointer<customMouseInteractorStyle>::New();
+    style_2->setManager(this);
+
+    renderWindowInteractor_->SetInteractorStyle(style_2);
+
 	renderer_->SetBackground(.3, .6, .3); // Background color green
     renderer_->ResetCamera();
     FUNCTION_END;
@@ -194,6 +202,10 @@ void Manager::addNewShape(vtkSmartPointer<vtkDataSet> renderable)
     FUNCTION_END;
 }
 
+bool Manager::isOnly2DGeometry()
+{
+    return (geo_) ? geo_->is2D() : false; 
+}
 
 void Manager::createRootNodes()
 {
@@ -237,6 +249,16 @@ void Manager::updateRenderAllGeometries(const vtkSmartPointer<vtkDataSet> render
         utilities::InfoLogger << "Rendering data of size : "<< render->GetActualMemorySize()<<" kbs"<< '\n';
         ResetRendererAndRender( render );
     }
+    SCOPED_FUNCTION_END;
+}
+void Manager::updateRenderWholeTree()
+{
+    SCOPED_FUNCTION_START;
+
+    auto render = rootNode_->assembleUGrid( rootNode_->getAllPointsUntil( ) ) ; 
+    utilities::InfoLogger << "Rendering data of size : "<< render->GetActualMemorySize()<<" kbs"<< '\n';
+    ResetRendererAndRender( render );
+
     SCOPED_FUNCTION_END;
 }
 void Manager::generateQuadTree(const int max_level)

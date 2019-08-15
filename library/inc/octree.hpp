@@ -20,7 +20,7 @@ enum bounds
 	Z_MIN,
 	Z_MAX
 };
-
+using Point = std::array<double,3>;
 class node : public std::enable_shared_from_this<node>
 {
 	std::weak_ptr<node> m_parent = std::weak_ptr<node>();
@@ -62,6 +62,9 @@ public:
 
     std::vector<std::vector<double>> getAllPointsAtLevel(int max_level = -1) const;
     std::vector<std::vector<double>> getAllPointsUntil(int max_level = -1) const;
+
+    void refineTowardsPoint( const Point& p );
+    bool isPointInsideMe(const Point& p );
 
 
 

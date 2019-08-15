@@ -20,7 +20,6 @@ find_package(VTK REQUIRED PATHS /home/oguz/personal_projects/octree/VTK-Install 
 #message(${VTK_INCLUDE_DIRS})
 #include(${VTK_USE_FILE})
 include_directories(implicitgeometry/library/inc)
-include_directories(implicitgeometry/library/inc)
 include_directories(implicitgeometry/external/catch)
 include_directories( library/inc )
 include_directories( . )

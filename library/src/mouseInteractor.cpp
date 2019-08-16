@@ -50,3 +50,25 @@ void customMouseInteractorStyle::setManager(Manager* m)
 {
     m_ = m;
 }
+
+void customMouseInteractorStyle::OnMouseWheelForward() 
+{
+    utilities::InfoLogger << "Pressed mouse wheel forward." << '\n';
+
+    std::shared_ptr<absAction> action = std::make_shared<RefineAllGeometries>();
+    std::shared_ptr<Command> c = std::make_shared<Command>( m_, action );
+    c->execute( );
+
+    //vtkInteractorStyleTrackballCamera::OnMouseWheelForward();
+}
+
+void customMouseInteractorStyle::OnMouseWheelBackward() 
+{
+    utilities::InfoLogger << "Pressed mouse wheel backward." << '\n';
+
+    std::shared_ptr<absAction> action = std::make_shared<Coarsen>();
+    std::shared_ptr<Command> c = std::make_shared<Command>( m_, action );
+    c->execute( );
+
+    //vtkInteractorStyleTrackballCamera::OnMouseWheelForward();
+}

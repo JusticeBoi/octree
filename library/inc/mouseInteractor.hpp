@@ -16,6 +16,12 @@ class customMouseInteractorStyle : public vtkInteractorStyleTrackballCamera
 
     virtual void OnRightButtonDown() override;
 
+    virtual void OnMouseWheelForward() override;
+
+    virtual void OnMouseWheelBackward() override; 
+
+
+
 
     void setManager( Manager * );
 

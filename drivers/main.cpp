@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 
     const std::shared_ptr<implicit::AbsImplicitGeometry> rec_shared = std::make_shared<implicit::Rectangle>(0., 0., 0.3, 0.3 );
 
-    const std::shared_ptr<implicit::AbsImplicitGeometry> canvas = std::make_shared<implicit::Rectangle>(0., 0., 1, 1 );
+    const std::shared_ptr<implicit::AbsImplicitGeometry> canvas = std::make_shared<implicit::Rectangle>(0., 0., 0.99, 0.99 );
 
     const std::shared_ptr<implicit::AbsImplicitGeometry> circle_shared = std::make_shared<implicit::Circle>(0.3, 0.3, 0.1 );
 
@@ -53,12 +53,12 @@ int main(int argc, char *argv[])
     //M.addGeometry(rec_shared.get());
     //M.addGeometry(rec_shared);
     //M.addGeometry(circle_shared);
-    M.addGeometry(canvas);
+    //M.addGeometry(canvas);
     //M.addGeometry(circle_shared_2);
 
-    //M.addGeometry(sag);
-    //M.addGeometry(sol);
-    //M.addGeometry(ortasi);
+    M.addGeometry(sag);
+    M.addGeometry(sol);
+    M.addGeometry(ortasi);
     //M.addGeometry(sphere);
     M.createRootNodes();
     //M.generateQuadTree(max_level);
